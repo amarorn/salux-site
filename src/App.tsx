@@ -19,6 +19,7 @@ import { MagneticButton } from '@/components/MagneticButton'
 import { DecryptText } from '@/components/DecryptText'
 import { HoverImageList } from '@/components/HoverImageList'
 import { VideoBackground } from '@/components/VideoBackground'
+import SplashCursor from '@/components/SplashCursor'
 
 import orbsMp4 from './assets/videos/orbs.mp4'
 import orbsWebm from './assets/videos/orbs.webm'
@@ -37,16 +38,16 @@ import stargridLogo from './assets/products/stargrid.svg'
 import zerodoxLogo from './assets/products/zerodox.svg'
 import tihospitalarLogo from './assets/products/tihospitalar.svg'
 
-function useReveal() {
+function useReveal(route: string) {
   useEffect(() => {
     const els = document.querySelectorAll<HTMLElement>('.reveal, .image-animated, .scroll-color')
     const io = new IntersectionObserver(
       (entries) => entries.forEach((e) => e.isIntersecting && e.target.classList.add('in')),
-      { threshold: 0.18, rootMargin: '0px 0px -8% 0px' }
+      { threshold: 0.1, rootMargin: '0px 0px -5% 0px' }
     )
     els.forEach((el) => io.observe(el))
     return () => io.disconnect()
-  }, [])
+  }, [route])
 }
 
 function Counter({ to, suffix = '', duration = 1600 }: { to: number; suffix?: string; duration?: number }) {
@@ -176,15 +177,15 @@ function Hero() {
     <section id="top" className="relative pt-36 pb-24 sm:pt-44 sm:pb-32 overflow-hidden">
       <div className="absolute inset-0 -z-10">
         <VideoBackground
-          mp4={orbsMp4}
-          webm={orbsWebm}
-          poster={orbsPoster}
-          opacity={0.45}
-          className="mix-blend-lighten"
+          mp4={dashboardMp4}
+          webm={dashboardWebm}
+          poster={dashboardPoster}
+          opacity={0.35}
         />
-        <div className="absolute inset-0 bg-background/40" />
-        <Aurora intensity={0.7} />
-        <div className="absolute inset-0 bg-grid mask-radial opacity-40" />
+        <div className="absolute inset-0 bg-background/70" />
+        <div className="absolute inset-0 bg-gradient-to-b from-background/40 via-transparent to-background" />
+        <Aurora intensity={0.55} />
+        <div className="absolute inset-0 bg-grid mask-radial opacity-30" />
         <div className="absolute inset-0 bg-dotgrid mask-fade-b" />
       </div>
 
@@ -194,7 +195,7 @@ function Hero() {
             <Eyebrow tone="primary" className="px-3 py-1">
               <Sparkles className="w-3 h-3 mr-1.5" /> Nova geração · Operação ativada por inteligência
             </Eyebrow>
-            <h1 className="mt-6 font-display text-[clamp(2.6rem,7vw,6.2rem)] leading-[0.95] tracking-tight text-pretty">
+            <h1 className="mt-6 font-display text-[clamp(2.2rem,6vw,5.4rem)] leading-[1.05] tracking-tight text-pretty pb-1">
               <DecryptText text="Uma nova forma de " duration={700} />
               <em className="italic text-gradient-emerald not-italic-fallback">
                 <DecryptText text="coordenar" as="span" startDelay={500} duration={600} />
@@ -293,10 +294,8 @@ function Problem() {
             <Eyebrow tone="accent">
               02 · Problema & valor
             </Eyebrow>
-            <h2 className="mt-5 font-display text-5xl sm:text-6xl leading-[1] tracking-tight">
-              Onde a saúde<br />
-              <em className="italic text-gradient-emerald">perde eficiência</em>,<br />
-              a Salux cria coordenação.
+            <h2 className="mt-5 font-display text-4xl sm:text-5xl lg:text-6xl leading-[1.1] tracking-tight text-balance pb-1">
+              Onde a saúde <em className="italic text-gradient-emerald whitespace-nowrap">perde eficiência</em>, a Salux cria coordenação.
             </h2>
             <p className="mt-6 text-lg max-w-md scroll-color">
               Mais clareza para gerir. Mais inteligência para decidir.
@@ -351,7 +350,7 @@ function Journey() {
           <Eyebrow tone="primary">
             03 · Jornada conectada
           </Eyebrow>
-          <h2 className="mt-5 font-display text-5xl sm:text-6xl tracking-tight leading-[1]">
+          <h2 className="mt-5 font-display text-4xl sm:text-5xl lg:text-6xl tracking-tight leading-[1.1] text-balance pb-1">
             Do <em className="italic">cuidado</em> à <em className="italic text-gradient-emerald">gestão.</em>
           </h2>
           <p className="mt-5 max-w-2xl text-muted-foreground text-lg">
@@ -406,9 +405,8 @@ function Capabilities() {
             <Eyebrow tone="primary">
               04 · Capacidades integradas
             </Eyebrow>
-            <h2 className="mt-5 font-display text-5xl sm:text-6xl tracking-tight leading-[1]">
-              Capacidades para resolver<br />
-              <em className="italic text-gradient-emerald">desafios reais</em> da operação.
+            <h2 className="mt-5 font-display text-4xl sm:text-5xl lg:text-6xl tracking-tight leading-[1.1] text-balance pb-1">
+              Capacidades para resolver <em className="italic text-gradient-emerald">desafios reais</em> da operação.
             </h2>
           </div>
           <div className="lg:col-span-5 text-muted-foreground text-lg">
@@ -446,7 +444,7 @@ function Capabilities() {
           </div>
         </div>
 
-        <div className="mt-10 grid sm:grid-cols-2 lg:grid-cols-3 gap-4 reveal">
+        <div className="mt-10 grid sm:grid-cols-2 lg:grid-cols-3 gap-5 reveal overflow-visible">
           {capabilities.map((c) => (
             <CapabilityCard
               key={c.code}
@@ -480,7 +478,7 @@ function ExploreList() {
         <div className="grid lg:grid-cols-12 gap-12 mb-12 reveal">
           <div className="lg:col-span-7">
             <Eyebrow tone="accent">04b · Explore por capacidade</Eyebrow>
-            <h2 className="mt-5 font-display text-5xl sm:text-6xl tracking-display leading-[1]">
+            <h2 className="mt-5 font-display text-4xl sm:text-5xl lg:text-6xl tracking-display leading-[1.1] text-balance pb-1">
               Cada capacidade <em className="italic text-gradient-emerald">no detalhe.</em>
             </h2>
           </div>
@@ -501,15 +499,14 @@ function Initia() {
     <section id="initia" className="relative py-32 overflow-hidden">
       <div className="absolute inset-0 -z-10">
         <VideoBackground
-          mp4={dashboardMp4}
-          webm={dashboardWebm}
-          poster={dashboardPoster}
+          mp4={orbsMp4}
+          webm={orbsWebm}
+          poster={orbsPoster}
           opacity={0.4}
-          objectPosition="center"
         />
         <div className="absolute inset-0 bg-background/75" />
         <div className="absolute inset-0 bg-gradient-to-b from-background via-transparent to-background" />
-        <Beams origin="top" intensity={0.45} />
+        <Beams origin="top" intensity={0.4} />
         <div className="absolute inset-0 bg-grid mask-radial opacity-20" />
         <div className="noise" />
       </div>
@@ -519,7 +516,7 @@ function Initia() {
           <Eyebrow tone="primary">
             <Cpu className="w-3 h-3 mr-1.5" /> Solução âncora
           </Eyebrow>
-          <h2 className="mt-6 font-display text-6xl sm:text-7xl lg:text-8xl tracking-tight leading-[0.95]">
+          <h2 className="mt-6 font-display text-5xl sm:text-6xl lg:text-7xl tracking-tight leading-[1.05] pb-1">
             <em className="italic text-gradient-emerald">Initia.</em><br />
             A nova geração de plataforma<br />
             para operar a saúde.
@@ -617,7 +614,7 @@ function Credentials() {
             <Eyebrow tone="accent">
               05 · Credenciais
             </Eyebrow>
-            <h2 className="mt-5 font-display text-5xl tracking-tight leading-[1]">
+            <h2 className="mt-5 font-display text-5xl tracking-tight leading-[1.05]">
               Tecnologia criada para a <em className="italic text-gradient-emerald">realidade da saúde brasileira.</em>
             </h2>
             <p className="mt-5 text-muted-foreground">
@@ -673,9 +670,8 @@ function Case() {
           <Eyebrow tone="accent">
             06 · Resultados reais
           </Eyebrow>
-          <h2 className="mt-5 font-display text-5xl sm:text-6xl tracking-tight leading-[1]">
-            Desafios resolvidos.<br />
-            <em className="italic text-gradient-emerald">Operações transformadas.</em>
+          <h2 className="mt-5 font-display text-4xl sm:text-5xl lg:text-6xl tracking-tight leading-[1.1] text-balance pb-1">
+            Desafios resolvidos. <em className="italic text-gradient-emerald">Operações transformadas.</em>
           </h2>
         </div>
 
@@ -723,9 +719,8 @@ function CTA() {
               <Eyebrow tone="primary">
                 Próximo passo
               </Eyebrow>
-              <h2 className="mt-5 font-display text-4xl sm:text-5xl tracking-tight leading-[1]">
-                Avance para um novo patamar de<br />
-                <em className="italic text-gradient-emerald">gestão, cuidado e inteligência</em> em saúde.
+              <h2 className="mt-5 font-display text-3xl sm:text-4xl lg:text-5xl tracking-tight leading-[1.1] text-balance pb-1">
+                Avance para um novo patamar de <em className="italic text-gradient-emerald">gestão, cuidado e inteligência</em> em saúde.
               </h2>
               <p className="mt-5 text-muted-foreground text-pretty max-w-xl">
                 Converse com o time Salux e descubra como o ecossistema pode responder aos desafios
@@ -801,7 +796,6 @@ function Footer() {
 }
 
 function App() {
-  useReveal()
   const [theme, setTheme] = useState<'dark' | 'light'>(() => {
     if (typeof window === 'undefined') return 'dark'
     const saved = localStorage.getItem('salux-theme')
@@ -810,6 +804,7 @@ function App() {
   const [route, setRoute] = useState<string>(() =>
     typeof window === 'undefined' ? '' : window.location.hash.replace('#', '')
   )
+  useReveal(route)
   useEffect(() => {
     document.documentElement.classList.toggle('light', theme === 'light')
     localStorage.setItem('salux-theme', theme)
@@ -824,6 +819,18 @@ function App() {
   if (route === 'styleguide') {
     return (
       <div className="relative min-h-screen">
+        <SplashCursor
+          DENSITY_DISSIPATION={3.5}
+          VELOCITY_DISSIPATION={2}
+          PRESSURE={0.1}
+          CURL={3}
+          SPLAT_RADIUS={0.2}
+          SPLAT_FORCE={6000}
+          COLOR_UPDATE_SPEED={10}
+          SHADING
+          RAINBOW_MODE={false}
+          COLOR="#54C1ED"
+        />
         <Nav theme={theme} onToggleTheme={toggleTheme} />
         <Styleguide />
       </div>
@@ -832,6 +839,18 @@ function App() {
 
   return (
     <div className="relative min-h-screen">
+      <SplashCursor
+        DENSITY_DISSIPATION={3.5}
+        VELOCITY_DISSIPATION={2}
+        PRESSURE={0.1}
+        CURL={3}
+        SPLAT_RADIUS={0.2}
+        SPLAT_FORCE={6000}
+        COLOR_UPDATE_SPEED={10}
+        SHADING
+        RAINBOW_MODE={false}
+        COLOR="#54C1ED"
+      />
       <a
         href="#main"
         className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:px-4 focus:py-2 focus:rounded-pill focus:bg-primary focus:text-primary-foreground focus:font-medium focus:shadow-lg"

@@ -63,6 +63,8 @@
 @layer utilities {
   .font-serif { font-family: 'Sora', sans-serif; font-weight: 600; letter-spacing: -0.035em; }
   .font-display { font-family: 'Sora', sans-serif; font-weight: 700; letter-spacing: -0.04em; }
+  /* Itálicos do Sora vazam à direita — pequeno padding evita corte */
+  .font-display em, h1 em, h2 em, h3 em { padding-right: 0.08em; padding-left: 0.02em; }
   .font-mono { font-family: 'JetBrains Mono', monospace; }
   .text-balance { text-wrap: balance; }
   .text-pretty { text-wrap: pretty; }
@@ -165,29 +167,23 @@
   }
   @keyframes shimmer { from { background-position: 200% 0; } to { background-position: -200% 0; } }
 
-  /* Reveal · clip-path "cortina" cinematográfica + sutil translate */
+  /* Reveal · fade + sutil translate (clip-path removido — bloqueia IntersectionObserver no Chrome) */
   .reveal {
     opacity: 0;
-    transform: translateY(18px);
-    clip-path: inset(0 0 100% 0);
-    -webkit-clip-path: inset(0 0 100% 0);
+    transform: translateY(20px);
     transition:
-      opacity 0.9s cubic-bezier(.2,.6,.2,1),
-      transform 0.9s cubic-bezier(.2,.6,.2,1),
-      clip-path 1.5s cubic-bezier(.65,.05,.36,1),
-      -webkit-clip-path 1.5s cubic-bezier(.65,.05,.36,1);
-    will-change: clip-path, transform, opacity;
+      opacity 0.8s cubic-bezier(.2,.6,.2,1),
+      transform 0.8s cubic-bezier(.2,.6,.2,1);
+    will-change: transform, opacity;
   }
   .reveal.in {
     opacity: 1;
     transform: translateY(0);
-    clip-path: inset(0 0 0 0);
-    -webkit-clip-path: inset(0 0 0 0);
   }
   /* Variantes direcionais do reveal */
-  .reveal-left { clip-path: inset(0 100% 0 0); -webkit-clip-path: inset(0 100% 0 0); }
-  .reveal-right { clip-path: inset(0 0 0 100%); -webkit-clip-path: inset(0 0 0 100%); }
-  .reveal-left.in, .reveal-right.in { clip-path: inset(0 0 0 0); -webkit-clip-path: inset(0 0 0 0); }
+  .reveal-left { opacity: 0; transform: translateX(-20px); }
+  .reveal-right { opacity: 0; transform: translateX(20px); }
+  .reveal-left.in, .reveal-right.in { opacity: 1; transform: translateX(0); }
 
   /* Hero image — scale-in cinemático (1.5s ease-out) */
   .image-animated {
@@ -218,6 +214,14 @@
   /* product wordmarks: dark theme = white-out tint for legibility; light theme = original brand colors */
   .logo-tint { filter: brightness(0) invert(1); }
   .light .logo-tint { filter: none; }
+  .logo-watermark {
+    filter: brightness(0) invert(1);
+    opacity: 0.24;
+  }
+  .light .logo-watermark {
+    filter: grayscale(1) contrast(0.75) brightness(0.5);
+    opacity: 0.16;
+  }
 
   /* light theme overrides for custom utilities */
   .light .bg-grid {
@@ -425,5 +429,6 @@
   .image-animated { opacity: 1 !important; transform: none !important; }
   .scroll-color { color: hsl(var(--foreground)) !important; }
   .spotlight::before { display: none !important; }
+  /* Card expand hover — neutralizar transformações */
+  .spotlight:hover { transform: none !important; box-shadow: none !important; }
 }
-
