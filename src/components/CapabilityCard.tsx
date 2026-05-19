@@ -1,4 +1,5 @@
 import { ArrowUpRight, type LucideIcon } from 'lucide-react'
+import { Link } from 'react-router-dom'
 import { useSpotlight } from './useSpotlight'
 
 export type CapabilityCardProps = {
@@ -37,9 +38,9 @@ export function CapabilityCard({
   const ref = useSpotlight<HTMLAnchorElement>()
 
   return (
-    <a
-      ref={ref}
-      href={href}
+    <Link
+      ref={ref as React.Ref<HTMLAnchorElement>}
+      to={href ?? '#contato'}
       className="spotlight group relative rounded-2xl glass p-6 hover:bg-secondary/50 focus-visible:bg-secondary/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 transition-all duration-500 ease-out border-gradient overflow-hidden flex flex-col will-change-transform hover:scale-[1.03] hover:-translate-y-1 hover:z-10 hover:shadow-[0_30px_80px_-20px_hsl(var(--primary)/0.35),0_10px_30px_-12px_hsl(var(--primary)/0.2)]"
     >
       {/* Visual de fundo que emerge no hover (logo do produto enlarged) */}
@@ -72,8 +73,8 @@ export function CapabilityCard({
       />
 
       <div className="relative z-10 flex items-start justify-between gap-3">
-        <div className={`w-11 h-11 rounded-xl glass flex items-center justify-center shrink-0 transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3 ${accentClass}`}>
-          <Icon className="w-5 h-5" aria-hidden />
+        <div className={`w-14 h-14 rounded-2xl glass flex items-center justify-center shrink-0 transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3 ${accentClass}`}>
+          <Icon className="w-6 h-6" aria-hidden />
         </div>
         {logo ? (
           <img
@@ -91,7 +92,7 @@ export function CapabilityCard({
       <h3 className="relative z-10 mt-5 font-display text-2xl leading-tight text-balance transition-transform duration-500 group-hover:translate-x-1">
         {name}
       </h3>
-      <p className="relative z-10 mt-3 text-sm text-muted-foreground leading-relaxed text-pretty flex-1">
+      <p className="relative z-10 mt-3 text-sm text-muted-foreground leading-relaxed text-pretty flex-1 line-clamp-3">
         {desc}
       </p>
 
@@ -113,6 +114,6 @@ export function CapabilityCard({
           aria-hidden
         />
       </div>
-    </a>
+    </Link>
   )
 }
