@@ -1,6 +1,5 @@
 import { ArrowUpRight, type LucideIcon } from 'lucide-react'
 import { Link } from 'react-router-dom'
-import { useSpotlight } from './useSpotlight'
 
 export type CapabilityCardProps = {
   code: string
@@ -8,21 +7,17 @@ export type CapabilityCardProps = {
   desc: string
   icon: LucideIcon
   accent?: 'primary' | 'accent'
+  image?: string
   logo?: string
   href?: string
   ctaLabel?: string
 }
 
 /**
- * CapabilityCard
- * --------------
- * Card de capacidade do Ecossistema Salux. Tratamento "pixila-like":
- * - Hover: cresce (scale 1.03), eleva (sombra + z-10), emerge visual
- *   gigante do produto no fundo (logo escalado e mais opaco)
- * - Spotlight cursor-following mantido como brilho diagonal
- * - Card sem logo: usa o ícone categórico enlarged como visual de fundo
- *
- * Tokens consumidos: glass, border-gradient, text-primary/accent, logo-tint.
+ * CapabilityCard — estilo institucional (PDF home):
+ * - Foto no topo (aspect 4:3) com logo do produto sobreposto (canto inf esq)
+ * - Faixa azul-clara embaixo com título + descrição curta
+ * - Hover Apple-tier: scale 1.01 + lift 2px + sombra suave
  */
 export function CapabilityCard({
   code,
@@ -30,62 +25,64 @@ export function CapabilityCard({
   desc,
   icon: Icon,
   accent = 'primary',
+  image,
   logo,
   href = '#contato',
   ctaLabel = 'Conhecer capacidade',
 }: CapabilityCardProps) {
   const accentClass = accent === 'primary' ? 'text-primary' : 'text-accent'
-  const ref = useSpotlight<HTMLAnchorElement>()
 
   return (
     <Link
-      ref={ref as React.Ref<HTMLAnchorElement>}
       to={href ?? '#contato'}
-      className="spotlight group relative rounded-2xl glass p-6 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 transition-[transform,box-shadow,background-color] duration-300 ease-out border-gradient overflow-hidden flex flex-col will-change-transform hover:bg-secondary/30 hover:scale-[1.01] hover:-translate-y-0.5 hover:shadow-[0_18px_50px_-24px_rgba(0,0,0,0.55)]"
+      className="group relative flex flex-col rounded-2xl overflow-hidden bg-card ring-1 ring-border transition-[transform,box-shadow] duration-300 ease-out will-change-transform hover:scale-[1.01] hover:-translate-y-0.5 hover:shadow-[0_18px_50px_-24px_rgba(15,30,60,0.25)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
     >
-      {logo && (
-        <div className="absolute inset-0 overflow-hidden rounded-2xl pointer-events-none" aria-hidden>
-          <div className="absolute inset-y-[20%] left-[20%] right-[-4%]">
-            <img
-              src={logo}
-              alt=""
-              className="logo-watermark absolute inset-0 h-full w-full max-w-none object-contain object-right-bottom opacity-0 transition-opacity duration-500 ease-out group-hover:opacity-[0.45]"
-            />
-          </div>
-          <div className="absolute inset-0 bg-gradient-to-r from-background via-background/85 to-background/40" />
-        </div>
-      )}
-
-      <div className="relative z-10 flex items-start justify-between gap-3">
-        <div className={`w-14 h-14 rounded-2xl glass flex items-center justify-center shrink-0 ${accentClass}`}>
-          <Icon className="w-6 h-6" aria-hidden />
-        </div>
-        {logo ? (
+      {/* Foto topo */}
+      <div className="relative aspect-[4/3] overflow-hidden bg-secondary">
+        {image ? (
           <img
-            src={logo}
-            alt={code}
-            className="h-7 max-w-[130px] object-contain logo-tint"
+            src={image}
+            alt=""
+            aria-hidden
+            className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]"
           />
         ) : (
-          <span className="font-mono text-2xs uppercase tracking-label text-muted-foreground text-right max-w-[130px]">
-            {code}
-          </span>
+          <div className={`absolute inset-0 flex items-center justify-center ${accentClass}`}>
+            <Icon className="w-16 h-16 opacity-50" strokeWidth={1.2} />
+          </div>
+        )}
+        <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/45 via-black/15 to-transparent" />
+        {logo && (
+          <div className="absolute bottom-3 left-3 right-3">
+            <div className="inline-flex items-center justify-center bg-white/95 backdrop-blur-sm rounded-lg px-3 py-1.5 shadow-sm ring-1 ring-black/5">
+              <img
+                src={logo}
+                alt={code}
+                className="h-5 w-auto max-w-[140px] object-contain"
+              />
+            </div>
+          </div>
         )}
       </div>
 
-      <h3 className="relative z-10 mt-5 font-display text-2xl leading-tight text-balance">
-        {name}
-      </h3>
-      <p className="relative z-10 mt-3 text-sm text-muted-foreground leading-relaxed text-pretty flex-1 line-clamp-3">
-        {desc}
-      </p>
-
-      <div className="relative z-10 mt-5 flex items-center text-sm text-muted-foreground group-hover:text-foreground transition-colors duration-300">
-        <span>{ctaLabel}</span>
-        <ArrowUpRight
-          className="w-4 h-4 ml-1 transition-transform duration-300 ease-out group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
-          aria-hidden
-        />
+      {/* Faixa azul-clara embaixo */}
+      <div className="flex flex-col flex-1 bg-primary/5 p-6">
+        {!logo && (
+          <span className="font-mono text-2xs uppercase tracking-label text-primary/80">{code}</span>
+        )}
+        <h3 className={`${logo ? '' : 'mt-2'} font-display text-xl leading-tight text-balance text-primary`}>
+          {name}
+        </h3>
+        <p className="mt-3 text-sm text-muted-foreground leading-relaxed text-pretty flex-1 line-clamp-4">
+          {desc}
+        </p>
+        <div className="mt-5 flex items-center text-sm text-primary group-hover:text-primary/80 transition-colors">
+          <span>{ctaLabel}</span>
+          <ArrowUpRight
+            className="w-4 h-4 ml-1 transition-transform duration-300 ease-out group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+            aria-hidden
+          />
+        </div>
       </div>
     </Link>
   )

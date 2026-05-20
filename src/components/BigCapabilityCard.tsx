@@ -62,7 +62,7 @@ export function BigCapabilityCard({
           <img
             src={image}
             alt=""
-            className="absolute inset-0 w-full h-full object-cover transition-transform duration-[1.2s] ease-out group-hover:scale-105"
+            className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 ease-out group-hover:scale-105"
             loading="lazy"
           />
         </picture>

@@ -1,27 +1,15 @@
 import { useEffect } from 'react'
 import { Link, useParams, Navigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { ArrowLeft, ArrowRight, type LucideIcon } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Check } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Eyebrow } from '@/components/Eyebrow'
 import { MagneticButton } from '@/components/MagneticButton'
-
-export type ProductDef = {
-  slug: string
-  code: string
-  name: string
-  tagline: string
-  desc: string
-  icon: LucideIcon
-  accent: 'primary' | 'accent'
-  logo?: string
-  /** Imagem hero (substitui o slot do logo gigante no hero + slot foto) */
-  heroImage?: { jpg: string; webp: string; alt: string }
-  features: { icon: LucideIcon; label: string; desc: string }[]
-}
+import type { Capability } from '@/types/site'
+import { journeyStages } from '@/content/journey'
 
 type Props = {
-  products: ProductDef[]
+  capabilities: Capability[]
   Nav: React.ComponentType<{ theme: 'dark' | 'light'; onToggleTheme: () => void }>
   Footer: React.ComponentType
   theme: 'dark' | 'light'
@@ -34,41 +22,44 @@ const fade = (delay: number) => ({
   transition: { duration: 0.65, delay, ease: [0.22, 1, 0.36, 1] as const },
 })
 
-export function ProductPage({ products, Nav, Footer, theme, onToggleTheme }: Props) {
+const EASE = [0.22, 1, 0.36, 1] as const
+
+export function ProductPage({ capabilities, Nav, Footer, theme, onToggleTheme }: Props) {
   const { slug } = useParams<{ slug: string }>()
-  const product = products.find((p) => p.slug === slug)
+  const capability = capabilities.find((c) => c.slug === slug)
 
   useEffect(() => {
     window.scrollTo({ top: 0 })
   }, [slug])
 
-  if (!product) return <Navigate to="/capacidades" replace />
+  if (!capability) return <Navigate to="/capacidades" replace />
 
-  const Icon = product.icon
-  const accentColor = product.accent === 'primary' ? 'text-primary' : 'text-accent'
-  const glowClass = product.accent === 'primary' ? 'glow-primary' : 'glow-accent'
+  const Icon = capability.icon
+  const accentClass = capability.accent === 'primary' ? 'text-primary' : 'text-accent'
 
-  const currentIndex = products.findIndex((p) => p.slug === slug)
-  const prev = products[currentIndex - 1]
-  const next = products[currentIndex + 1]
+  const currentIndex = capabilities.findIndex((c) => c.slug === slug)
+  const prev = capabilities[currentIndex - 1]
+  const next = capabilities[currentIndex + 1]
+
+  const stages = capability.journeyStages
+    .map((s) => journeyStages.find((js) => js.slug === s))
+    .filter(Boolean) as typeof journeyStages
 
   return (
-    <div className="relative min-h-screen">
+    <div className="relative min-h-screen bg-background text-foreground">
       <Nav theme={theme} onToggleTheme={onToggleTheme} />
 
       {/* Hero */}
-      <section className="relative pt-48 pb-40 overflow-hidden">
+      <section className="relative pt-44 pb-24 overflow-hidden">
         <div className="absolute inset-0 -z-10">
-          <div className="absolute inset-0 bg-grid mask-radial opacity-20" />
-          <div className="absolute inset-0 bg-dotgrid opacity-30" />
-          <div className={`absolute left-1/2 top-1/3 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full ${product.accent === 'primary' ? 'bg-primary/8' : 'bg-accent/8'} blur-[120px]`} />
+          <div className={`absolute left-1/2 top-1/3 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full ${capability.accent === 'primary' ? 'bg-primary/8' : 'bg-accent/8'} blur-[120px]`} />
         </div>
 
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <motion.div {...fade(0.05)}>
             <Link
               to="/capacidades"
-              className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition mb-12 group"
+              className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition mb-10 group"
             >
               <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
               Todas as capacidades
@@ -77,30 +68,38 @@ export function ProductPage({ products, Nav, Footer, theme, onToggleTheme }: Pro
 
           <div className="grid lg:grid-cols-12 gap-12 items-center">
             <div className="lg:col-span-7">
+              {capability.logo && (
+                <motion.div {...fade(0.05)} className="mb-6">
+                  <img
+                    src={capability.logo}
+                    alt={`Logo ${capability.commercialName}`}
+                    className="h-10 sm:h-12 w-auto object-contain"
+                  />
+                </motion.div>
+              )}
+
               <motion.div {...fade(0.1)}>
-                <Eyebrow tone={product.accent}>
-                  {product.code}
-                </Eyebrow>
+                <Eyebrow tone={capability.accent}>{capability.commercialName}</Eyebrow>
               </motion.div>
 
               <motion.h1
                 {...fade(0.22)}
-                className="mt-8 font-display text-[clamp(2.4rem,5.5vw,4.8rem)] leading-[1.06] tracking-tight text-balance pb-1"
+                className="mt-6 font-display text-[clamp(2rem,4.5vw,3.8rem)] leading-[1.08] tracking-tight text-balance pb-1"
               >
-                {product.name}
+                {capability.headline}
               </motion.h1>
 
               <motion.p
                 {...fade(0.36)}
-                className="mt-6 text-xl text-muted-foreground text-pretty leading-relaxed max-w-2xl"
+                className="mt-6 text-lg text-muted-foreground text-pretty leading-relaxed max-w-2xl"
               >
-                {product.tagline}
+                {capability.tagline}
               </motion.p>
 
-              <motion.div {...fade(0.48)} className="mt-12 flex flex-wrap gap-3">
+              <motion.div {...fade(0.48)} className="mt-10 flex flex-wrap gap-3">
                 <MagneticButton strength={0.3} maxOffset={10}>
                   <Button asChild size="lg" className="rounded-full h-12 px-6 bg-primary hover:bg-primary/90 text-primary-foreground font-medium">
-                    <Link to="/#contato">Falar com o time <ArrowRight className="ml-2 w-4 h-4" /></Link>
+                    <Link to="/#contato">{capability.cta.label} <ArrowRight className="ml-2 w-4 h-4" /></Link>
                   </Button>
                 </MagneticButton>
               </motion.div>
@@ -108,151 +107,123 @@ export function ProductPage({ products, Nav, Footer, theme, onToggleTheme }: Pro
 
             <div className="lg:col-span-5 flex justify-center lg:justify-end">
               <motion.div
-                initial={{ opacity: 0, scale: 0.88, filter: 'blur(16px)' }}
-                animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
-                transition={{ duration: 1, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
+                initial={{ opacity: 0, scale: 0.92, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                transition={{ duration: 0.9, delay: 0.15, ease: EASE }}
                 className="relative"
               >
-                {product.heroImage ? (
-                  <div className={`relative w-full max-w-md aspect-[4/5] rounded-3xl glass border-gradient overflow-hidden ${glowClass}`}>
-                    <picture>
-                      <source srcSet={product.heroImage.webp} type="image/webp" />
-                      <img
-                        src={product.heroImage.jpg}
-                        alt={product.heroImage.alt}
-                        className="absolute inset-0 w-full h-full object-cover"
-                      />
-                    </picture>
-                    <div className="absolute inset-0 bg-gradient-to-t from-background/70 via-background/10 to-transparent" />
-                    {product.logo && (
-                      <div className="absolute left-6 bottom-6 right-6 flex items-center justify-between gap-3">
-                        <img src={product.logo} alt={product.code} className="h-8 max-w-[160px] object-contain logo-tint" />
-                        <div className={`w-11 h-11 rounded-xl glass flex items-center justify-center ${accentColor}`}>
-                          <Icon className="w-5 h-5" />
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                ) : product.logo ? (
-                  <div className={`w-64 h-64 rounded-3xl glass border-gradient flex items-center justify-center p-10 ${glowClass}`}>
-                    <img src={product.logo} alt={product.code} className="w-full h-full object-contain logo-tint" />
+                {capability.image ? (
+                  <div className="w-[320px] h-[400px] rounded-3xl overflow-hidden ring-1 ring-border shadow-[0_30px_80px_-30px_rgba(15,30,60,0.3)]">
+                    <img src={capability.image} alt="" className="w-full h-full object-cover" />
                   </div>
                 ) : (
-                  <div className={`w-64 h-64 rounded-3xl glass border-gradient flex items-center justify-center ${glowClass} ${accentColor}`}>
+                  <div className={`w-[320px] h-[400px] rounded-3xl bg-secondary ring-1 ring-border flex items-center justify-center ${accentClass}`}>
                     <Icon className="w-28 h-28" strokeWidth={1} />
                   </div>
                 )}
-                <div className={`absolute -inset-8 rounded-full ${product.accent === 'primary' ? 'bg-primary/10' : 'bg-accent/10'} blur-3xl -z-10`} />
               </motion.div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Descrição */}
-      <section className="py-32 border-t border-border">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <motion.p
-            initial={{ opacity: 0, scale: 0.97, filter: 'blur(6px)' }}
-            whileInView={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
-            viewport={{ once: true, margin: '-60px' }}
-            transition={{ duration: 0.75, ease: [0.22, 1, 0.36, 1] }}
-            className="font-display text-2xl sm:text-3xl lg:text-4xl leading-snug text-balance max-w-4xl"
-          >
-            {product.desc}
-          </motion.p>
+      {/* Narrativa canônica (2 parágrafos DOCX) */}
+      <section className="py-24 border-t border-border">
+        <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
+          {capability.narrative.map((p, i) => (
+            <motion.p
+              key={i}
+              initial={{ opacity: 0, y: 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-60px' }}
+              transition={{ duration: 0.7, delay: i * 0.1, ease: EASE }}
+              className={`leading-relaxed text-pretty ${i === 0 ? 'font-display text-2xl sm:text-3xl text-foreground' : 'mt-6 text-lg text-muted-foreground'}`}
+            >
+              {p}
+            </motion.p>
+          ))}
         </div>
       </section>
 
-      {/* Features */}
-      {product.features.length > 0 && (
-        <section className="py-32 border-t border-border bg-secondary/20">
+      {/* Capacidades entregues (deliverables canônicos DOCX) */}
+      {capability.deliverables.length > 0 && (
+        <section className="py-24 border-t border-border bg-secondary/40">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.97, filter: 'blur(6px)' }}
-              whileInView={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
-              viewport={{ once: true, margin: '-60px' }}
-              transition={{ duration: 0.75, ease: [0.22, 1, 0.36, 1] }}
-              className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5"
-            >
-              {product.features.map((f, i) => {
-                const FIcon = f.icon
-                return (
-                  <motion.div
-                    key={f.label}
-                    initial={{ opacity: 0, scale: 0.95, filter: 'blur(8px)' }}
-                    whileInView={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
-                    viewport={{ once: true, margin: '-40px' }}
-                    transition={{ duration: 0.6, delay: i * 0.06, ease: [0.22, 1, 0.36, 1] }}
-                    className="rounded-2xl glass p-6 border-gradient"
-                  >
-                    <FIcon className={`w-7 h-7 ${accentColor}`} />
-                    <h3 className="mt-4 font-display text-xl leading-tight">{f.label}</h3>
-                    <p className="mt-2 text-sm text-muted-foreground leading-relaxed">{f.desc}</p>
-                  </motion.div>
-                )
-              })}
-            </motion.div>
+            <div className="grid lg:grid-cols-12 gap-12">
+              <motion.div
+                initial={{ opacity: 0, y: 16 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: '-60px' }}
+                transition={{ duration: 0.7, ease: EASE }}
+                className="lg:col-span-5"
+              >
+                <Eyebrow tone={capability.accent}>Capacidades entregues</Eyebrow>
+                <h2 className="mt-3 font-display text-3xl sm:text-4xl leading-tight tracking-tight text-balance">
+                  O que esta capacidade entrega
+                </h2>
+                <p className="mt-5 text-muted-foreground leading-relaxed text-pretty">
+                  Cada capacidade do Ecossistema Salux atua sobre uma necessidade específica
+                  da operação — com escopo claro, integração nativa e governança preservada.
+                </p>
+              </motion.div>
+              <div className="lg:col-span-7">
+                <ul className="space-y-3">
+                  {capability.deliverables.map((d, i) => (
+                    <motion.li
+                      key={i}
+                      initial={{ opacity: 0, x: -10 }}
+                      whileInView={{ opacity: 1, x: 0 }}
+                      viewport={{ once: true, margin: '-40px' }}
+                      transition={{ duration: 0.5, delay: Math.min(i, 8) * 0.04, ease: EASE }}
+                      className="flex items-start gap-3 rounded-xl bg-card ring-1 ring-border p-4"
+                    >
+                      <span className={`flex items-center justify-center w-6 h-6 rounded-full bg-primary/10 ${accentClass} shrink-0 mt-0.5`}>
+                        <Check className="w-3.5 h-3.5" />
+                      </span>
+                      <span className="text-sm text-foreground leading-relaxed">{d}</span>
+                    </motion.li>
+                  ))}
+                </ul>
+              </div>
+            </div>
           </div>
         </section>
       )}
 
-      {/* Slot para foto — usa heroImage quando disponível, senão placeholder */}
-      <section className="py-32 border-t border-border">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.97, filter: 'blur(6px)' }}
-            whileInView={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
-            viewport={{ once: true, margin: '-60px' }}
-            transition={{ duration: 0.75, ease: [0.22, 1, 0.36, 1] }}
-            className="relative aspect-video rounded-3xl glass border-gradient overflow-hidden"
-          >
-            {product.heroImage ? (
-              <>
-                <picture>
-                  <source srcSet={product.heroImage.webp} type="image/webp" />
-                  <img
-                    src={product.heroImage.jpg}
-                    alt={product.heroImage.alt}
-                    className="absolute inset-0 w-full h-full object-cover"
-                    loading="lazy"
-                  />
-                </picture>
-                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-background/85 via-background/40 to-transparent p-8 sm:p-10">
-                  <div className="flex items-center gap-4">
-                    <div className={`w-12 h-12 rounded-xl glass flex items-center justify-center shrink-0 ${accentColor}`}>
-                      <Icon className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <p className="font-mono text-2xs uppercase tracking-widest text-muted-foreground">{product.code}</p>
-                      <p className="font-display text-xl sm:text-2xl mt-1 leading-tight">{product.name}</p>
-                    </div>
+      {/* Etapas da jornada cobertas */}
+      {stages.length > 0 && (
+        <section className="py-24 border-t border-border">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="mb-10 max-w-2xl">
+              <Eyebrow tone="primary">Etapas da jornada</Eyebrow>
+              <h2 className="mt-3 font-display text-3xl sm:text-4xl leading-tight tracking-tight text-balance">
+                Onde esta capacidade atua
+              </h2>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {stages.map((s) => {
+                const SIcon = s.icon
+                return (
+                  <div key={s.slug} className="inline-flex items-center gap-2 rounded-full bg-primary/10 text-primary ring-1 ring-primary/20 px-4 py-2 text-sm">
+                    <SIcon className="w-4 h-4" />
+                    {s.label}
                   </div>
-                </div>
-              </>
-            ) : (
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="text-center">
-                  <div className={`mx-auto w-16 h-16 rounded-2xl glass flex items-center justify-center mb-4 ${accentColor}`}>
-                    <Icon className="w-8 h-8" strokeWidth={1.5} />
-                  </div>
-                  <p className="font-mono text-xs uppercase tracking-widest text-muted-foreground">Imagem em breve</p>
-                </div>
-              </div>
-            )}
-          </motion.div>
-        </div>
-      </section>
+                )
+              })}
+            </div>
+          </div>
+        </section>
+      )}
 
-      {/* Navegação entre produtos */}
-      <section className="py-20 border-t border-border">
+      {/* Navegação entre capacidades */}
+      <section className="py-16 border-t border-border">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 flex justify-between items-center">
           {prev ? (
             <Link to={`/capacidades/${prev.slug}`} className="group flex items-center gap-4 text-muted-foreground hover:text-foreground transition">
               <ArrowLeft className="w-5 h-5 transition-transform group-hover:-translate-x-1" />
               <div>
                 <div className="font-mono text-2xs uppercase tracking-widest text-muted-foreground">Anterior</div>
-                <div className="font-display text-lg mt-0.5">{prev.name}</div>
+                <div className="font-display text-lg mt-0.5">{prev.title}</div>
               </div>
             </Link>
           ) : <div />}
@@ -260,7 +231,7 @@ export function ProductPage({ products, Nav, Footer, theme, onToggleTheme }: Pro
             <Link to={`/capacidades/${next.slug}`} className="group flex items-center gap-4 text-muted-foreground hover:text-foreground transition text-right">
               <div>
                 <div className="font-mono text-2xs uppercase tracking-widest text-muted-foreground">Próximo</div>
-                <div className="font-display text-lg mt-0.5">{next.name}</div>
+                <div className="font-display text-lg mt-0.5">{next.title}</div>
               </div>
               <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
             </Link>
