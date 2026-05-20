@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ArrowLeft, LayoutGrid, List } from 'lucide-react'
 import { CapabilityCard } from '@/components/CapabilityCard'
+import { BigCapabilityCard } from '@/components/BigCapabilityCard'
 import { HoverImageList, type HoverImageListItem } from '@/components/HoverImageList'
 import { Eyebrow } from '@/components/Eyebrow'
 import type { Capability, JourneyStageSlug } from '@/types/site'
@@ -137,19 +138,66 @@ export function CapabilitiesPage({ capabilities, Nav, Footer, theme, onToggleThe
           <AnimatePresence mode="wait" initial={false}>
             {view === 'grid' ? (
               <motion.div
-                key="grid"
+                key={`grid-${stage}`}
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -4 }}
                 transition={{ duration: 0.3, ease: EASE }}
-                className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5"
+                className="grid grid-cols-1 sm:grid-cols-3 gap-5"
               >
-                {filtered.map((c, i) => (
+                {/* Card destacado: primeiro item do filtro, 2 colunas × 2 linhas */}
+                {filtered[0] && (
+                  <motion.div
+                    className="sm:col-span-2 sm:row-span-2"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.7, ease: EASE }}
+                  >
+                    <BigCapabilityCard
+                      className="h-full"
+                      code={filtered[0].commercialName}
+                      name={filtered[0].title}
+                      desc={filtered[0].tagline}
+                      icon={filtered[0].icon}
+                      accent={filtered[0].accent}
+                      image={filtered[0].image!}
+                      logo={filtered[0].logo}
+                      href={`/capacidades/${filtered[0].slug}`}
+                      ctaLabel="Ver solução"
+                      variant="wide"
+                    />
+                  </motion.div>
+                )}
+
+                {/* Slots à direita do hero (itens 2 e 3) */}
+                {filtered.slice(1, 3).map((c, i) => (
+                  <motion.div
+                    key={c.slug}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, delay: (i + 1) * 0.06, ease: EASE }}
+                  >
+                    <CapabilityCard
+                      code={c.commercialName}
+                      name={c.title}
+                      desc={c.tagline}
+                      icon={c.icon}
+                      accent={c.accent}
+                      image={c.image}
+                      logo={c.logo}
+                      href={`/capacidades/${c.slug}`}
+                      ctaLabel="Ver detalhes"
+                    />
+                  </motion.div>
+                ))}
+
+                {/* Restante — 3 colunas */}
+                {filtered.slice(3).map((c, i) => (
                   <motion.div
                     key={c.slug}
                     initial={{ opacity: 0, y: 14 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: Math.min(i, 6) * 0.05, ease: EASE }}
+                    transition={{ duration: 0.5, delay: Math.min(i, 5) * 0.05, ease: EASE }}
                   >
                     <CapabilityCard
                       code={c.commercialName}

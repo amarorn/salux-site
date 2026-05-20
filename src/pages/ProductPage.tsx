@@ -5,6 +5,8 @@ import { ArrowLeft, ArrowRight, Check } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Eyebrow } from '@/components/Eyebrow'
 import { MagneticButton } from '@/components/MagneticButton'
+import { CapabilityCard } from '@/components/CapabilityCard'
+import { BigCapabilityCard } from '@/components/BigCapabilityCard'
 import type { Capability } from '@/types/site'
 import { journeyStages } from '@/content/journey'
 
@@ -45,6 +47,15 @@ export function ProductPage({ capabilities, Nav, Footer, theme, onToggleTheme }:
   const stages = capability.journeyStages
     .map((s) => journeyStages.find((js) => js.slug === s))
     .filter(Boolean) as typeof journeyStages
+
+  const related = (() => {
+    const others = capabilities.filter((c) => c.slug !== slug)
+    const sharesStage = others.filter((c) =>
+      c.journeyStages.some((s) => capability.journeyStages.includes(s))
+    )
+    const rest = others.filter((c) => !sharesStage.includes(c))
+    return [...sharesStage, ...rest].slice(0, 9)
+  })()
 
   return (
     <div className="relative min-h-screen bg-background text-foreground">
@@ -211,6 +222,129 @@ export function ProductPage({ capabilities, Nav, Footer, theme, onToggleTheme }:
                   </div>
                 )
               })}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Capacidades relacionadas — bento sempre em dark mode para visual cinematográfico */}
+      {related.length > 0 && (
+        <section
+          className="dark-scope relative py-28 sm:py-32 bg-background text-foreground overflow-hidden"
+          style={{
+            // Paleta slate (wordmark Salux #45555b) — desaturada, contrasta com os cards azuis
+            ['--background' as never]: '205 14% 11%',
+            ['--foreground' as never]: '200 15% 95%',
+            ['--card' as never]: '205 18% 14%',
+            ['--card-foreground' as never]: '200 15% 95%',
+            ['--primary' as never]: '213 95% 64%',
+            ['--primary-foreground' as never]: '205 60% 5%',
+            ['--secondary' as never]: '205 14% 16%',
+            ['--secondary-foreground' as never]: '200 15% 95%',
+            ['--muted' as never]: '205 12% 18%',
+            ['--muted-foreground' as never]: '205 8% 65%',
+            ['--accent' as never]: '195 81% 63%',
+            ['--accent-foreground' as never]: '205 60% 5%',
+            ['--border' as never]: '205 14% 20%',
+          }}
+        >
+          {/* Glow de fundo — primary só, sutil */}
+          <div className="absolute inset-0 -z-10 pointer-events-none">
+            <div className="absolute left-1/3 top-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-primary/8 blur-[180px]" />
+          </div>
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <motion.div
+              className="grid lg:grid-cols-12 gap-10 items-end mb-10"
+              initial={reduced ? false : { opacity: 0, y: 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-80px' }}
+              transition={{ duration: 0.65, ease: EASE }}
+            >
+              <div className="lg:col-span-8">
+                <Eyebrow tone="primary">Ecossistema Salux</Eyebrow>
+                <h2 className="mt-3 font-display text-3xl sm:text-4xl lg:text-5xl leading-[1.1] tracking-tight text-balance">
+                  Capacidades que se conectam a {capability.commercialName}
+                </h2>
+                <p className="mt-5 text-muted-foreground max-w-3xl text-pretty">
+                  Cada capacidade opera de forma independente, mas ganha força quando integrada
+                  ao restante do ecossistema. Explore as que mais dialogam com esta solução.
+                </p>
+              </div>
+              <div className="lg:col-span-4 lg:text-right">
+                <Button asChild variant="outline" className="rounded-full">
+                  <Link to="/capacidades">Ver todas <ArrowRight className="ml-2 w-4 h-4" /></Link>
+                </Button>
+              </div>
+            </motion.div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+              {related[0] && (
+                <motion.div
+                  className="sm:col-span-2"
+                  initial={reduced ? false : { opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: '-60px' }}
+                  transition={{ duration: 0.7, ease: EASE }}
+                >
+                  <BigCapabilityCard
+                    className="h-full"
+                    code={related[0].commercialName}
+                    name={related[0].title}
+                    desc={related[0].tagline}
+                    icon={related[0].icon}
+                    accent={related[0].accent}
+                    image={related[0].image!}
+                    logo={related[0].logo}
+                    href={`/capacidades/${related[0].slug}`}
+                    ctaLabel="Ver solução"
+                    variant="wide"
+                  />
+                </motion.div>
+              )}
+
+              {related[1] && (
+                <motion.div
+                  key={related[1].slug}
+                  initial={reduced ? false : { opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: '-60px' }}
+                  transition={{ duration: 0.6, delay: 0.06, ease: EASE }}
+                >
+                  <CapabilityCard
+                    code={related[1].commercialName}
+                    name={related[1].title}
+                    desc={related[1].tagline}
+                    icon={related[1].icon}
+                    accent={related[1].accent}
+                    image={related[1].image}
+                    logo={related[1].logo}
+                    href={`/capacidades/${related[1].slug}`}
+                    ctaLabel="Ver detalhes"
+                  />
+                </motion.div>
+              )}
+
+              {related.slice(2).map((c, i) => (
+                <motion.div
+                  key={c.slug}
+                  initial={reduced ? false : { opacity: 0, y: 14 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: '-60px' }}
+                  transition={{ duration: 0.5, delay: Math.min(i, 5) * 0.05, ease: EASE }}
+                >
+                  <CapabilityCard
+                    code={c.commercialName}
+                    name={c.title}
+                    desc={c.tagline}
+                    icon={c.icon}
+                    accent={c.accent}
+                    image={c.image}
+                    logo={c.logo}
+                    href={`/capacidades/${c.slug}`}
+                    ctaLabel="Ver detalhes"
+                  />
+                </motion.div>
+              ))}
             </div>
           </div>
         </section>

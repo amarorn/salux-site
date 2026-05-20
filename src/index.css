@@ -260,6 +260,28 @@
     box-shadow: 0 0 0 1px hsl(209 60% 38% / 0.1), 0 30px 80px -20px hsl(209 60% 38% / 0.25), 0 0 100px -10px hsl(195 81% 50% / 0.2);
   }
   .light .noise { opacity: 0.025; }
+
+  /* dark-scope: força paleta dark em uma sub-árvore mesmo dentro de .light.
+     Usado para seções que devem ser sempre escuras (ex: bento de capacidades
+     relacionadas na ProductPage) independente do tema da página. */
+  .dark-scope .glass {
+    background: linear-gradient(180deg, hsl(205 50% 9% / 0.65), hsl(205 60% 6% / 0.65));
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid hsl(205 35% 14%);
+    box-shadow: none;
+  }
+  .dark-scope .border-gradient::before {
+    background: linear-gradient(135deg, hsl(213 95% 64% / 0.45), transparent 40%, hsl(195 81% 63% / 0.3) 100%);
+  }
+  .dark-scope .text-gradient-emerald {
+    background: linear-gradient(135deg, hsl(213 95% 70%) 0%, hsl(200 88% 72%) 45%, hsl(195 81% 70%) 100%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .dark-scope .text-gradient-bone {
+    background: linear-gradient(180deg, hsl(200 25% 98%) 0%, hsl(205 12% 60%) 100%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
 }
 
 /* ============================================================

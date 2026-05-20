@@ -11,6 +11,8 @@ import { FAQ } from '@/components/FAQ'
 
 import capInitia from '@/assets/photos/cap-initia.jpg'
 
+const initiaHeroVideo = '/videos/initia-hero.mp4'
+
 /**
  * Subset de FAQs focado em conceitos da camada agêntica e Initia.
  * Critério: perguntas sobre IA/agentes/operação ativada por inteligência.
@@ -36,12 +38,46 @@ export function InitiaPage({ Nav, Footer, theme, onToggleTheme }: Props) {
       <Nav theme={theme} onToggleTheme={onToggleTheme} />
 
       {/* Hero */}
-      <section className="relative pt-44 pb-24 overflow-hidden">
+      <section className="relative pt-44 pb-32 overflow-hidden min-h-[92vh] flex items-center">
+        {/* Vídeo de fundo full-bleed */}
         <div className="absolute inset-0 -z-10">
-          <div className="absolute left-1/2 top-1/3 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] rounded-full bg-primary/8 blur-[140px]" />
+          <video
+            src={initiaHeroVideo}
+            poster={capInitia}
+            autoPlay
+            loop
+            muted
+            playsInline
+            preload="metadata"
+            aria-hidden="true"
+            className="absolute inset-0 w-full h-full object-cover motion-reduce:hidden"
+          />
+          <img
+            src={capInitia}
+            alt=""
+            aria-hidden="true"
+            className="absolute inset-0 w-full h-full object-cover hidden motion-reduce:block"
+          />
+
+          {/* Overlays para legibilidade do texto */}
+          <div className="absolute inset-0 bg-background/55" />
+          <div className="absolute inset-0 bg-gradient-to-r from-background via-background/70 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-b from-background/40 via-transparent to-background" />
+
+          {/* Glow primário (mantém identidade da marca) */}
+          <div className="absolute right-[10%] top-1/3 -translate-y-1/2 w-[700px] h-[700px] rounded-full bg-primary/15 blur-[160px]" />
+
+          {/* Grão sutil para textura cinematográfica */}
+          <div
+            className="absolute inset-0 opacity-[0.04] mix-blend-overlay pointer-events-none"
+            style={{
+              backgroundImage:
+                'url("data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22200%22><filter id=%22n%22><feTurbulence type=%22fractalNoise%22 baseFrequency=%220.9%22/></filter><rect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23n)%22/></svg>")',
+            }}
+          />
         </div>
 
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 w-full">
           <motion.div
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
@@ -56,55 +92,42 @@ export function InitiaPage({ Nav, Footer, theme, onToggleTheme }: Props) {
             </Link>
           </motion.div>
 
-          <div className="grid lg:grid-cols-12 gap-12 items-center">
-            <div className="lg:col-span-7">
-              <motion.div
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, ease: EASE }}
-              >
-                <Eyebrow tone="primary">{initiaPage.hero.eyebrow}</Eyebrow>
-              </motion.div>
-              <motion.h1
-                initial={{ opacity: 0, y: 18, filter: 'blur(10px)' }}
-                animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-                transition={{ duration: 0.7, delay: 0.1, ease: EASE }}
-                className="mt-6 font-display text-[clamp(2rem,4.8vw,4.2rem)] leading-[1.06] tracking-tight text-balance pb-1"
-              >
-                {initiaPage.hero.title}
-              </motion.h1>
-              <motion.p
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.3, ease: EASE }}
-                className="mt-6 text-xl text-primary text-pretty leading-snug max-w-2xl"
-              >
-                {initiaPage.hero.subtitle}
-              </motion.p>
-              <motion.div
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.55, ease: EASE }}
-                className="mt-10 flex flex-wrap gap-3"
-              >
-                <MagneticButton strength={0.3} maxOffset={10}>
-                  <Button asChild size="lg" className="rounded-full h-12 px-6 bg-primary hover:bg-primary/90 text-primary-foreground font-medium">
-                    <a href={initiaPage.hero.cta.href}>{initiaPage.hero.cta.label} <ArrowRight className="ml-2 w-4 h-4" /></a>
-                  </Button>
-                </MagneticButton>
-              </motion.div>
-            </div>
-
-            <div className="lg:col-span-5 flex justify-center lg:justify-end">
-              <motion.div
-                initial={{ opacity: 0, scale: 0.92, y: 20 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                transition={{ duration: 0.95, delay: 0.15, ease: EASE }}
-                className="relative w-[320px] h-[400px] rounded-3xl overflow-hidden ring-1 ring-border shadow-[0_30px_80px_-30px_rgba(15,30,60,0.3)]"
-              >
-                <img src={capInitia} alt="" className="w-full h-full object-cover" />
-              </motion.div>
-            </div>
+          <div className="max-w-3xl">
+            <motion.div
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, ease: EASE }}
+            >
+              <Eyebrow tone="primary">{initiaPage.hero.eyebrow}</Eyebrow>
+            </motion.div>
+            <motion.h1
+              initial={{ opacity: 0, y: 18, filter: 'blur(10px)' }}
+              animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+              transition={{ duration: 0.7, delay: 0.1, ease: EASE }}
+              className="mt-6 font-display text-[clamp(2.2rem,5.6vw,5rem)] leading-[1.04] tracking-tight text-balance pb-1"
+            >
+              {initiaPage.hero.title}
+            </motion.h1>
+            <motion.p
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.3, ease: EASE }}
+              className="mt-6 text-xl text-primary text-pretty leading-snug max-w-2xl"
+            >
+              {initiaPage.hero.subtitle}
+            </motion.p>
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.55, ease: EASE }}
+              className="mt-10 flex flex-wrap gap-3"
+            >
+              <MagneticButton strength={0.3} maxOffset={10}>
+                <Button asChild size="lg" className="rounded-full h-12 px-6 bg-primary hover:bg-primary/90 text-primary-foreground font-medium">
+                  <a href={initiaPage.hero.cta.href}>{initiaPage.hero.cta.label} <ArrowRight className="ml-2 w-4 h-4" /></a>
+                </Button>
+              </MagneticButton>
+            </motion.div>
           </div>
         </div>
       </section>
