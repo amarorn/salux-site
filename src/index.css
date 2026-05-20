@@ -52,6 +52,10 @@
 @layer base {
   * { @apply border-border; }
   html { scroll-behavior: smooth; }
+
+  @media (min-width: 768px) and (prefers-reduced-motion: no-preference) {
+    html { scroll-snap-type: y proximity; }
+  }
   body {
     @apply bg-background text-foreground;
     font-family: 'Inter', system-ui, sans-serif;
@@ -61,6 +65,12 @@
 }
 
 @layer utilities {
+  /* ─── Scroll snap sections ─── */
+  .snap-section {
+    scroll-snap-align: start;
+    min-height: 100dvh;
+  }
+
   .font-serif { font-family: 'Sora', sans-serif; font-weight: 600; letter-spacing: -0.035em; }
   .font-display { font-family: 'Sora', sans-serif; font-weight: 700; letter-spacing: -0.04em; }
   /* Itálicos do Sora vazam à direita — pequeno padding evita corte */
@@ -432,6 +442,19 @@
     hsl(var(--primary) / 0.12),
     hsl(var(--primary) / 0.04) 30%,
     transparent 55%);
+}
+
+/* ─── StickyNarrative orb rings ─────────────────────────────────────────── */
+@keyframes ring-pulse {
+  0%, 100% { opacity: 0.12; transform: scale(1); }
+  50%       { opacity: 0.32; transform: scale(1.025); }
+}
+
+/* ─── Cinematic depth utilities ─────────────────────────────────────────── */
+.depth-layer {
+  transform: translateZ(0);
+  will-change: transform, opacity;
+  backface-visibility: hidden;
 }
 
 /* WCAG 2.3.3 — Respect user motion preferences */

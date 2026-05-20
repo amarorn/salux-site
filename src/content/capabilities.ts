@@ -4,13 +4,15 @@ import {
 } from 'lucide-react'
 import type { Capability } from '@/types/site'
 
-import capInitia from '@/assets/photos/cap-initia.jpg'
-import capAtencaoBasica from '@/assets/photos/cap-atencao-basica.jpg'
-import capCloudhealth from '@/assets/photos/cap-cloudhealth.jpg'
-import capMedplace from '@/assets/photos/cap-medplace.jpg'
+// Imagens healthcare — premium photoreal (versão WebP é servida via picture/source quando suportada)
+import capInitia from '@/assets/images/woman-laptop.jpg'
+import capAtencaoBasica from '@/assets/images/app-phone.jpg'
+import capCloudhealth from '@/assets/images/doctor-tablet.jpg'
+import capMedplace from '@/assets/images/lab-diagnostics.jpg'
+import capStargrid from '@/assets/images/meeting-dashboard.jpg'
+// Imagens secundárias mantidas (sem upgrade ainda)
 import capSkymed from '@/assets/photos/cap-skymed.jpg'
 import capZerodox from '@/assets/photos/cap-zerodox.jpg'
-import capStargrid from '@/assets/photos/cap-stargrid.jpg'
 import capVision from '@/assets/photos/cap-vision.jpg'
 import capTihospitalar from '@/assets/photos/cap-tihospitalar.jpg'
 

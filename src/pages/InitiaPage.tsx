@@ -10,6 +10,7 @@ import { faq } from '@/content/faq'
 import { FAQ } from '@/components/FAQ'
 
 import capInitia from '@/assets/photos/cap-initia.jpg'
+import { Beams } from '@/components/Beams'
 
 const initiaHeroVideo = '/videos/initia-hero.mp4'
 
@@ -66,6 +67,9 @@ export function InitiaPage({ Nav, Footer, theme, onToggleTheme }: Props) {
 
           {/* Glow primário (mantém identidade da marca) */}
           <div className="absolute right-[10%] top-1/3 -translate-y-1/2 w-[700px] h-[700px] rounded-full bg-primary/15 blur-[160px]" />
+
+          {/* Feixes de luz sugerindo "ativação" */}
+          <Beams origin="base" intensity={0.45} />
 
           {/* Grão sutil para textura cinematográfica */}
           <div

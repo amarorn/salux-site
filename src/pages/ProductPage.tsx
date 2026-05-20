@@ -37,7 +37,6 @@ export function ProductPage({ capabilities, Nav, Footer, theme, onToggleTheme }:
 
   if (!capability) return <Navigate to="/capacidades" replace />
 
-  const Icon = capability.icon
   const accentClass = capability.accent === 'primary' ? 'text-primary' : 'text-accent'
 
   const currentIndex = capabilities.findIndex((c) => c.slug === slug)
@@ -62,12 +61,30 @@ export function ProductPage({ capabilities, Nav, Footer, theme, onToggleTheme }:
       <Nav theme={theme} onToggleTheme={onToggleTheme} />
 
       {/* Hero */}
-      <section className="relative pt-44 pb-24 overflow-hidden">
+      <section className="relative pt-44 pb-32 overflow-hidden min-h-[88vh] flex items-center">
+        {/* Full-bleed image background */}
         <div className="absolute inset-0 -z-10">
-          <div className={`absolute left-1/2 top-1/3 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full ${capability.accent === 'primary' ? 'bg-primary/8' : 'bg-accent/8'} blur-[120px]`} />
+          {capability.image ? (
+            <>
+              <picture>
+                <img
+                  src={capability.image}
+                  alt=""
+                  aria-hidden="true"
+                  className="absolute inset-0 w-full h-full object-cover"
+                />
+              </picture>
+              {/* Overlays fixos navy (independem do tema) */}
+              <div className="absolute inset-0 bg-[#06283a]/55" />
+              <div className="absolute inset-0 bg-gradient-to-r from-[#06283a] via-[#06283a]/75 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-b from-[#06283a]/35 via-transparent to-[#06283a]/80" />
+            </>
+          ) : null}
+          {/* Brand glow */}
+          <div className={`absolute right-[8%] top-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full ${capability.accent === 'primary' ? 'bg-primary/12' : 'bg-accent/12'} blur-[150px]`} />
         </div>
 
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 w-full">
           <motion.div {...fade(0.05)}>
             <Link
               to="/capacidades"
@@ -78,63 +95,42 @@ export function ProductPage({ capabilities, Nav, Footer, theme, onToggleTheme }:
             </Link>
           </motion.div>
 
-          <div className="grid lg:grid-cols-12 gap-12 items-center">
-            <div className="lg:col-span-7">
-              {capability.logo && (
-                <motion.div {...fade(0.05)} className="mb-6">
-                  <img
-                    src={capability.logo}
-                    alt={`Logo ${capability.commercialName}`}
-                    className="h-10 sm:h-12 w-auto object-contain"
-                  />
-                </motion.div>
-              )}
-
-              <motion.div {...fade(0.1)}>
-                <Eyebrow tone={capability.accent}>{capability.commercialName}</Eyebrow>
+          <div className="max-w-3xl">
+            {capability.logo && (
+              <motion.div {...fade(0.05)} className="mb-6">
+                <img
+                  src={capability.logo}
+                  alt={`Logo ${capability.commercialName}`}
+                  className="h-10 sm:h-12 w-auto object-contain"
+                />
               </motion.div>
+            )}
 
-              <motion.h1
-                {...fade(0.22)}
-                className="mt-6 font-display text-[clamp(2rem,4.5vw,3.8rem)] leading-[1.08] tracking-tight text-balance pb-1"
-              >
-                {capability.headline}
-              </motion.h1>
+            <motion.div {...fade(0.1)}>
+              <Eyebrow tone={capability.accent}>{capability.commercialName}</Eyebrow>
+            </motion.div>
 
-              <motion.p
-                {...fade(0.36)}
-                className="mt-6 text-lg text-muted-foreground text-pretty leading-relaxed max-w-2xl"
-              >
-                {capability.tagline}
-              </motion.p>
+            <motion.h1
+              {...fade(0.22)}
+              className="mt-6 font-display text-[clamp(2.2rem,5vw,4.2rem)] leading-[1.06] tracking-tight text-balance pb-1 text-white"
+            >
+              {capability.headline}
+            </motion.h1>
 
-              <motion.div {...fade(0.48)} className="mt-10 flex flex-wrap gap-3">
-                <MagneticButton strength={0.3} maxOffset={10}>
-                  <Button asChild size="lg" className="rounded-full h-12 px-6 bg-primary hover:bg-primary/90 text-primary-foreground font-medium">
-                    <Link to="/#contato">{capability.cta.label} <ArrowRight className="ml-2 w-4 h-4" /></Link>
-                  </Button>
-                </MagneticButton>
-              </motion.div>
-            </div>
+            <motion.p
+              {...fade(0.36)}
+              className="mt-6 text-lg text-white/75 text-pretty leading-relaxed max-w-2xl"
+            >
+              {capability.tagline}
+            </motion.p>
 
-            <div className="lg:col-span-5 flex justify-center lg:justify-end">
-              <motion.div
-                initial={{ opacity: 0, scale: 0.92, y: 20 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                transition={{ duration: 0.9, delay: 0.15, ease: EASE }}
-                className="relative"
-              >
-                {capability.image ? (
-                  <div className="w-[320px] h-[400px] rounded-3xl overflow-hidden ring-1 ring-border shadow-[0_30px_80px_-30px_rgba(15,30,60,0.3)]">
-                    <img src={capability.image} alt="" className="w-full h-full object-cover" />
-                  </div>
-                ) : (
-                  <div className={`w-[320px] h-[400px] rounded-3xl bg-secondary ring-1 ring-border flex items-center justify-center ${accentClass}`}>
-                    <Icon className="w-28 h-28" strokeWidth={1} />
-                  </div>
-                )}
-              </motion.div>
-            </div>
+            <motion.div {...fade(0.48)} className="mt-10 flex flex-wrap gap-3">
+              <MagneticButton strength={0.3} maxOffset={10}>
+                <Button asChild size="lg" className="rounded-full h-12 px-6 bg-primary hover:bg-primary/90 text-primary-foreground font-medium">
+                  <Link to="/#contato">{capability.cta.label} <ArrowRight className="ml-2 w-4 h-4" /></Link>
+                </Button>
+              </MagneticButton>
+            </motion.div>
           </div>
         </div>
       </section>

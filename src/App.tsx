@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { ReactLenis, useLenis } from 'lenis/react'
 import {
   motion,
   useReducedMotion,
@@ -11,9 +12,11 @@ import {
 import { Routes, Route, Link, Navigate, useLocation } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import {
-  ArrowRight, ArrowUpRight, Brain, Building2, ChevronRight,
+  ArrowRight, ArrowUpRight, Building2, ChevronRight,
   Mail, Menu, Moon, Phone, Sun,
 } from 'lucide-react'
+import { StickyNarrative } from '@/components/StickyNarrative'
+import { Reveal, RevealBlock } from '@/components/Reveal'
 import { SaluxSymbol } from '@/components/SaluxLogo'
 import { Styleguide } from '@/components/Styleguide'
 import { CapabilityCard } from '@/components/CapabilityCard'
@@ -25,7 +28,6 @@ import { Testimonials } from '@/components/Testimonials'
 import { FAQ } from '@/components/FAQ'
 import { SchemaJsonLd } from '@/components/SchemaJsonLd'
 import { Aurora } from '@/components/Aurora'
-import { Beams } from '@/components/Beams'
 import { DecryptText } from '@/components/DecryptText'
 import SplashCursor from '@/components/SplashCursor'
 
@@ -43,6 +45,14 @@ import {
 
 import heroEquipe from './assets/photos/hero-equipe.jpg'
 import mockupDevice from './assets/photos/mockup-device.jpg'
+import womanLaptopJpg from './assets/images/woman-laptop.jpg'
+import womanLaptopWebp from './assets/images/woman-laptop.webp'
+import doctorTabletJpg from './assets/images/doctor-tablet.jpg'
+import doctorTabletWebp from './assets/images/doctor-tablet.webp'
+import labDiagnosticsJpg from './assets/images/lab-diagnostics.jpg'
+import labDiagnosticsWebp from './assets/images/lab-diagnostics.webp'
+import appPhoneJpg from './assets/images/app-phone.jpg'
+import appPhoneWebp from './assets/images/app-phone.webp'
 
 const EASE = [0.22, 1, 0.36, 1] as const
 
@@ -181,21 +191,39 @@ function Footer() {
 function Hero() {
   const reduced = useReducedMotion()
   const sectionRef = useRef<HTMLElement>(null)
+  const imgRef = useRef<HTMLImageElement>(null)
+
   const { scrollYProgress } = useScroll({
     target: sectionRef,
     offset: ['start start', 'end start'],
   })
-  const imgScale = useTransform(scrollYProgress, [0, 1], [1, 1.08])
-  const imgY = useTransform(scrollYProgress, [0, 1], [0, -40])
+
+  // Depth layers: text floats up 2× faster than image → separation illusion
+  const imgScale   = useTransform(scrollYProgress, [0, 1], [1, 1.08])
+  const imgY       = useTransform(scrollYProgress, [0, 1], [0, -40])
+  const textY      = useTransform(scrollYProgress, [0, 0.6], [0, -90])
+  const textOpacity= useTransform(scrollYProgress, [0, 0.45], [1, 0])
+
+  // Scroll-velocity motion blur — direct DOM, zero re-renders
+  useLenis(({ velocity }) => {
+    const el = imgRef.current
+    if (!el || reduced) return
+    const v = Math.abs(velocity)
+    el.style.filter = v > 1 ? `blur(${Math.min(v * 0.9, 3.5).toFixed(1)}px) saturate(0.85)` : ''
+    el.style.transition = v > 1 ? 'none' : 'filter 0.4s ease'
+  })
 
   const { hero } = homePage
 
   return (
-    <section ref={sectionRef} id="top" className="relative pt-36 sm:pt-44 pb-16 sm:pb-24 overflow-hidden">
-      {/* Aurora — background animado azul/cyan, mix-blend-mode screen */}
+    <section ref={sectionRef} id="top" className="relative pt-36 sm:pt-44 pb-16 sm:pb-24 overflow-hidden snap-section">
       <Aurora intensity={0.55} />
 
-      <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 text-center">
+      {/* Text block — floats up faster than image (depth layer 1) */}
+      <motion.div
+        style={reduced ? undefined : { y: textY, opacity: textOpacity }}
+        className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 text-center"
+      >
         <motion.div
           initial={reduced ? false : { opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
@@ -247,8 +275,9 @@ function Hero() {
             )
           )}
         </motion.div>
-      </div>
+      </motion.div>
 
+      {/* Image — depth layer 2 (slower float + velocity blur) */}
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 mt-14">
         <motion.div
           initial={reduced ? false : { opacity: 0, y: 24, scale: 0.97 }}
@@ -258,6 +287,7 @@ function Hero() {
           className="relative overflow-hidden rounded-[2rem] ring-1 ring-border shadow-[0_30px_80px_-30px_rgba(15,30,60,0.25)]"
         >
           <motion.img
+            ref={imgRef}
             src={heroEquipe}
             alt="Equipe médica em ambiente hospitalar"
             style={reduced ? undefined : { scale: imgScale }}
@@ -274,7 +304,7 @@ function Problem() {
   const { problem } = homePage
   const reduced = useReducedMotion()
   return (
-    <section className="relative py-20 sm:py-28">
+    <section className="relative py-20 sm:py-28 snap-section flex flex-col justify-center">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="rounded-[2rem] bg-primary text-primary-foreground overflow-hidden">
           <div className="grid lg:grid-cols-12 gap-10 p-10 sm:p-14">
@@ -285,9 +315,11 @@ function Problem() {
               viewport={{ once: true, margin: '-80px' }}
               transition={{ duration: 0.65, ease: EASE }}
             >
-              <h2 className="font-display text-4xl sm:text-5xl leading-[1.08] tracking-tight text-balance">
-                {problem.title}
-              </h2>
+              <Reveal>
+                <h2 className="font-display text-4xl sm:text-5xl leading-[1.08] tracking-tight text-balance">
+                  {problem.title}
+                </h2>
+              </Reveal>
               <ul className="mt-8 space-y-3 text-lg">
                 {problem.bullets.map((b) => <li key={b}>{b}</li>)}
               </ul>
@@ -327,7 +359,7 @@ function Journey() {
   }
 
   return (
-    <section id="jornada" className="relative py-24 sm:py-32">
+    <section id="jornada" className="relative py-24 sm:py-32 snap-section flex flex-col justify-center">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="grid lg:grid-cols-12 gap-12 items-center">
           <motion.div
@@ -337,21 +369,20 @@ function Journey() {
             initial="hidden"
             animate={inView ? 'show' : 'hidden'}
           >
-            <motion.h2
-              variants={item}
-              className="font-display text-3xl sm:text-4xl lg:text-5xl leading-[1.1] tracking-tight text-balance"
-            >
-              {journey.title.split(',')[0]},
-              <br />
-              <span className="text-primary">
-                <DecryptText
-                  text={journey.title.split(',')[1]?.trim() ?? ''}
-                  duration={1100}
-                  speed={28}
+            <Reveal>
+              <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl leading-[1.1] tracking-tight text-balance">
+                {journey.title.split(',')[0]},
+                <br />
+                <span className="text-primary">
+                  <DecryptText
+                    text={journey.title.split(',')[1]?.trim() ?? ''}
+                    duration={1100}
+                    speed={28}
                   startDelay={500}
-                />
-              </span>
-            </motion.h2>
+                  />
+                </span>
+              </h2>
+            </Reveal>
 
             <motion.p variants={item} className="mt-5 text-muted-foreground text-pretty max-w-xl">
               {journey.subtitle}
@@ -399,9 +430,11 @@ function Capabilities() {
           transition={{ duration: 0.65, ease: EASE }}
         >
           <div className="lg:col-span-8">
-            <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl leading-[1.1] tracking-tight text-balance">
-              {c.title}
-            </h2>
+            <Reveal>
+              <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl leading-[1.1] tracking-tight text-balance">
+                {c.title}
+              </h2>
+            </Reveal>
             <p className="mt-5 text-muted-foreground max-w-3xl text-pretty">
               {c.body}
             </p>
@@ -416,12 +449,9 @@ function Capabilities() {
         {/* Bento grid — featured + 9 capacidades */}
         <div className="mt-10 grid grid-cols-1 sm:grid-cols-3 gap-5">
           {/* Card destacado: Initia, 2 colunas × 2 linhas */}
-          <motion.div
+          <RevealBlock
             className="sm:col-span-2 sm:row-span-2"
-            initial={reduced ? false : { opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: '-60px' }}
-            transition={{ duration: 0.7, ease: EASE }}
+            delay={0.05}
           >
             <BigCapabilityCard
               className="h-full"
@@ -436,7 +466,7 @@ function Capabilities() {
               ctaLabel="Ver solução"
               variant="wide"
             />
-          </motion.div>
+          </RevealBlock>
 
           {/* Slots direita (caps 2–3) */}
           {capabilities.slice(1, 3).map((p, i) => (
@@ -491,51 +521,145 @@ function Capabilities() {
 
 function AgenticLayer() {
   const { capabilities: c } = homePage
-  const reduced = useReducedMotion()
+  const chapters = c.agentic.levels.map((a) => ({
+    tag: c.agentic.eyebrow,
+    number: a.level,
+    title: a.name,
+    body: a.description,
+  }))
+
   return (
-    <section className="relative py-16 sm:py-20">
+    <StickyNarrative
+      eyebrow={c.agentic.eyebrow}
+      headline={c.agentic.title}
+      chapters={chapters}
+    />
+  )
+}
+
+function OperationInRealLife() {
+  const reduced = useReducedMotion()
+
+  const tiles = [
+    {
+      key: 'executive',
+      span: 'lg:col-span-2',
+      ratio: 'aspect-[16/10]',
+      eyebrow: 'Do executivo',
+      title: 'Quem decide enxerga o todo.',
+      copy: 'Indicadores em tempo real conectam estratégia, finanças e assistência. A decisão deixa de ser intuição — vira evidência.',
+      jpg: womanLaptopJpg,
+      webp: womanLaptopWebp,
+      alt: 'Executiva consultando dashboard de eficiência hospitalar',
+    },
+    {
+      key: 'clinical',
+      span: 'lg:col-span-1',
+      ratio: 'aspect-[4/5] lg:aspect-auto',
+      eyebrow: 'Ao clínico',
+      title: 'O contexto certo, na hora exata.',
+      copy: 'Prontuário, sinais vitais e protocolos prontos no momento da decisão clínica.',
+      jpg: doctorTabletJpg,
+      webp: doctorTabletWebp,
+      alt: 'Médico revisando ECG em tablet holográfico',
+    },
+    {
+      key: 'patient',
+      span: 'lg:col-span-1',
+      ratio: 'aspect-[4/5] lg:aspect-auto',
+      eyebrow: 'Ao paciente',
+      title: 'A jornada continua fora da instituição.',
+      copy: 'Agendas, exames e tratamentos acompanham o paciente — no app, em casa, em qualquer ponto da rede.',
+      jpg: appPhoneJpg,
+      webp: appPhoneWebp,
+      alt: 'Aplicativo de saúde com agendamentos e notificações ao paciente',
+    },
+    {
+      key: 'diagnostics',
+      span: 'lg:col-span-2',
+      ratio: 'aspect-[16/10]',
+      eyebrow: 'Ao diagnóstico',
+      title: 'Da imagem ao laudo, sem interrupção.',
+      copy: 'Telerradiologia 24/7 e PACS em nuvem mantêm o fluxo diagnóstico ativo — em qualquer hora, qualquer região.',
+      jpg: labDiagnosticsJpg,
+      webp: labDiagnosticsWebp,
+      alt: 'Laboratório de diagnóstico avançado com equipamento de imagem',
+    },
+  ]
+
+  const stagger = (i: number) =>
+    reduced
+      ? { initial: false, animate: { opacity: 1 } }
+      : {
+          initial: { opacity: 0, scale: 0.96, filter: 'blur(10px)' },
+          whileInView: { opacity: 1, scale: 1, filter: 'blur(0px)' },
+          viewport: { once: true, margin: '-80px' },
+          transition: { duration: 0.85, delay: i * 0.12, ease: [0.22, 1, 0.36, 1] as const },
+        }
+
+  return (
+    <section id="operacao-real" className="relative py-32 border-y border-border overflow-hidden">
+      <div className="absolute inset-0 -z-10 bg-dotgrid opacity-30" />
+
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <motion.div
-          initial={reduced ? false : { opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: '-80px' }}
-          transition={{ duration: 0.65, ease: EASE }}
-        >
-          <div className="relative rounded-3xl bg-foreground text-background overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/30 via-transparent to-accent/20 mix-blend-screen" />
-            <div className="noise" aria-hidden />
-            <Beams origin="top" intensity={0.55} />
-            <div className="relative p-8 sm:p-12 grid lg:grid-cols-12 gap-8 items-center">
-              <div className="lg:col-span-7">
-                <span className="inline-flex items-center gap-2 rounded-full bg-primary/20 ring-1 ring-primary/40 px-3 py-1 font-mono text-2xs uppercase tracking-widest text-background">
-                  <Brain className="w-3 h-3" /> {c.agentic.eyebrow}
-                </span>
-                <h2 className="mt-5 font-display text-2xl sm:text-3xl leading-tight text-balance">
-                  {c.agentic.title}
-                </h2>
-                <p className="mt-4 text-background/80 max-w-2xl">
-                  {c.agentic.body}
+        <div className="grid lg:grid-cols-12 gap-10 mb-14">
+          <motion.div className="lg:col-span-7" {...stagger(0)}>
+            <Eyebrow tone="primary">Em operação real</Eyebrow>
+            <h2 className="mt-5 font-display text-4xl sm:text-5xl lg:text-6xl tracking-tight leading-[1.1] text-balance pb-1">
+              Do <em className="italic text-gradient-emerald">executivo</em> ao{' '}
+              <em className="italic text-gradient-emerald">paciente</em> — uma única operação.
+            </h2>
+          </motion.div>
+          <motion.p
+            className="lg:col-span-5 text-lg text-muted-foreground self-end leading-relaxed text-pretty"
+            {...stagger(1)}
+          >
+            A inteligência do Ecossistema Salux aparece em cada ponto da operação — da sala de
+            reunião à beira do leito, do laboratório à coordenação de receita.
+          </motion.p>
+        </div>
+
+        <div className="grid lg:grid-cols-3 gap-5">
+          {tiles.map((t, i) => (
+            <motion.a
+              key={t.key}
+              href="#capacidades"
+              className={`group relative ${t.span} ${t.ratio} rounded-2xl overflow-hidden border-gradient block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60`}
+              {...stagger(i + 2)}
+            >
+              <picture>
+                <source srcSet={t.webp} type="image/webp" />
+                <img
+                  src={t.jpg}
+                  alt={t.alt}
+                  loading="lazy"
+                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-105"
+                />
+              </picture>
+
+              {/* Overlay fixo navy (independe do tema) — garante contraste sobre a imagem */}
+              <div className="absolute inset-0 bg-gradient-to-t from-[#06283a]/95 via-[#06283a]/50 to-[#06283a]/10" />
+              <div className="absolute inset-0 bg-gradient-to-r from-[#06283a]/55 via-transparent to-transparent" />
+
+              {/* Content — cores fixas brancas (sempre sobre overlay navy) */}
+              <div className="absolute inset-0 flex flex-col justify-end p-6 sm:p-8 lg:p-10">
+                <div className="font-mono text-2xs uppercase tracking-label text-sky-300 mb-3">
+                  {t.eyebrow}
+                </div>
+                <h3 className="font-display text-2xl sm:text-3xl lg:text-4xl leading-[1.1] text-balance max-w-xl pb-1 text-white">
+                  {t.title}
+                </h3>
+                <p className="mt-3 text-sm sm:text-base text-white/75 max-w-md text-pretty leading-relaxed">
+                  {t.copy}
                 </p>
+                <div className="mt-5 inline-flex items-center gap-1.5 text-sm text-white/90 group-hover:text-sky-300 transition">
+                  <span className="transition-transform duration-500 group-hover:translate-x-1">Ver capacidades</span>
+                  <ArrowUpRight className="w-4 h-4 transition-transform duration-500 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+                </div>
               </div>
-              <div className="lg:col-span-5 grid grid-cols-1 gap-2">
-                {c.agentic.levels.map((a, i) => (
-                  <motion.div
-                    key={a.level}
-                    initial={reduced ? false : { opacity: 0, x: 16 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    viewport={{ once: true, margin: '-40px' }}
-                    transition={{ duration: 0.5, delay: i * 0.08, ease: EASE }}
-                    className="flex items-center gap-3 rounded-xl bg-background/5 ring-1 ring-background/10 px-4 py-3"
-                  >
-                    <span className="font-mono text-2xs text-background/70 w-6">{a.level}</span>
-                    <span className="font-display text-lg text-background">{a.name}</span>
-                    <span className="text-xs text-background/60 leading-snug ml-auto text-right hidden sm:block max-w-[60%]">{a.description}</span>
-                  </motion.div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </motion.div>
+            </motion.a>
+          ))}
+        </div>
       </div>
     </section>
   )
@@ -544,13 +668,17 @@ function AgenticLayer() {
 function Credentials() {
   const { credentials } = homePage
   const reduced = useReducedMotion()
+  const sectionRef = useRef<HTMLElement>(null)
+  const { scrollYProgress } = useScroll({ target: sectionRef, offset: ['start end', 'end start'] })
+  const mockupY      = useTransform(scrollYProgress, [0, 1], [50, -50])
+  const mockupRotate = useTransform(scrollYProgress, [0, 1], [-4, 4])
   const counters = [
     { to: 25, suffix: '+', label: 'anos no setor', delay: 0 },
     { to: 14, suffix: '', label: 'estados', delay: 0.15 },
     { to: 4000, suffix: '+', label: 'colaboradores · Grupo Bringel', delay: 0.3 },
   ] as const
   return (
-    <section className="relative py-24 sm:py-32">
+    <section ref={sectionRef} className="relative py-24 sm:py-32">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="relative rounded-[2rem] bg-foreground text-background overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-primary/40 via-transparent to-accent/20 mix-blend-screen" />
@@ -564,9 +692,11 @@ function Credentials() {
               viewport={{ once: true, margin: '-80px' }}
               transition={{ duration: 0.65, ease: EASE }}
             >
-              <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl leading-[1.08] tracking-tight text-balance">
-                {credentials.title}
-              </h2>
+              <Reveal>
+                <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl leading-[1.08] tracking-tight text-balance">
+                  {credentials.title}
+                </h2>
+              </Reveal>
               <p className="mt-5 text-background/80 max-w-xl text-pretty">
                 {credentials.subtitle}
               </p>
@@ -603,15 +733,18 @@ function Credentials() {
 
             <motion.div
               className="lg:col-span-5 flex justify-center lg:justify-end"
-              initial={reduced ? false : { opacity: 0, scale: 0.94, y: 20 }}
-              whileInView={{ opacity: 1, scale: 1, y: 0 }}
-              viewport={{ once: true, margin: '-80px' }}
-              transition={{ duration: 0.8, ease: EASE }}
+              style={reduced ? undefined : { y: mockupY, rotate: mockupRotate }}
             >
-              <div className="relative w-[260px] h-[520px] rounded-[2.4rem] bg-background/10 ring-8 ring-background/20 overflow-hidden shadow-[0_40px_80px_-30px_rgba(0,0,0,0.6)]">
+              <motion.div
+                initial={reduced ? false : { opacity: 0, scale: 0.9, y: 30 }}
+                whileInView={{ opacity: 1, scale: 1, y: 0 }}
+                viewport={{ once: true, margin: '-80px' }}
+                transition={{ duration: 1, ease: EASE }}
+                className="relative w-[260px] h-[520px] rounded-[2.4rem] bg-background/10 ring-8 ring-background/20 overflow-hidden shadow-[0_40px_80px_-30px_rgba(0,0,0,0.6)]"
+              >
                 <img src={mockupDevice} alt="App Salux em dispositivo móvel" className="absolute inset-0 w-full h-full object-cover" />
                 <div className="absolute top-2 left-1/2 -translate-x-1/2 w-24 h-5 rounded-full bg-background/40" />
-              </div>
+              </motion.div>
             </motion.div>
           </div>
         </div>
@@ -635,18 +768,14 @@ function CasesPreview() {
           transition={{ duration: 0.65, ease: EASE }}
         >
           <Eyebrow tone="primary">{cases.eyebrow}</Eyebrow>
-          <h2 className="mt-4 font-display text-3xl sm:text-4xl lg:text-5xl leading-[1.1] tracking-tight text-balance">
-            {cases.title}
-          </h2>
+          <Reveal delay={0.05}>
+            <h2 className="mt-4 font-display text-3xl sm:text-4xl lg:text-5xl leading-[1.1] tracking-tight text-balance">
+              {cases.title}
+            </h2>
+          </Reveal>
         </motion.div>
 
-        <motion.div
-          initial={reduced ? false : { opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: '-60px' }}
-          transition={{ duration: 0.7, delay: 0.1, ease: EASE }}
-          className="rounded-3xl bg-card ring-1 ring-border p-8 sm:p-10 mb-8"
-        >
+        <RevealBlock delay={0.1} className="rounded-3xl bg-card ring-1 ring-border p-8 sm:p-10 mb-8">
           <div className="font-mono text-2xs uppercase tracking-label text-muted-foreground">
             {ernestoDornellesCase.institution} · {ernestoDornellesCase.location}
           </div>
@@ -672,7 +801,7 @@ function CasesPreview() {
               Ver case completo <ArrowRight className="w-4 h-4" />
             </Link>
           </div>
-        </motion.div>
+        </RevealBlock>
 
         <div className="text-center">
           <Button asChild variant="outline" className="rounded-full">
@@ -698,9 +827,11 @@ function TestimonialsSection() {
           transition={{ duration: 0.65, ease: EASE }}
         >
           <Eyebrow tone="primary">{t.eyebrow}</Eyebrow>
-          <h2 className="mt-4 font-display text-3xl sm:text-4xl lg:text-5xl leading-[1.1] tracking-tight text-balance">
-            {t.title}
-          </h2>
+          <Reveal delay={0.05}>
+            <h2 className="mt-4 font-display text-3xl sm:text-4xl lg:text-5xl leading-[1.1] tracking-tight text-balance">
+              {t.title}
+            </h2>
+          </Reveal>
         </motion.div>
         <Testimonials items={testimonials} />
       </div>
@@ -835,6 +966,7 @@ function HomePage({ theme, onToggleTheme }: { theme: 'dark' | 'light'; onToggleT
         <Journey />
         <Capabilities />
         <AgenticLayer />
+        <OperationInRealLife />
         <Credentials />
         <CasesPreview />
         <TestimonialsSection />
@@ -896,11 +1028,18 @@ function App() {
   const toggleTheme = () => setTheme((t) => (t === 'dark' ? 'light' : 'dark'))
 
   return (
-    <>
+    <ReactLenis
+      root
+      options={{
+        lerp: 0.1,
+        duration: 1.4,
+        easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      }}
+    >
       <SchemaJsonLd id="schema-organization" schema={organizationSchema} />
       <SchemaJsonLd id="schema-website" schema={websiteSchema} />
       <AnimatedRoutes theme={theme} toggleTheme={toggleTheme} />
-    </>
+    </ReactLenis>
   )
 }
 
@@ -912,10 +1051,10 @@ function AnimatedRoutes({ theme, toggleTheme }: { theme: 'dark' | 'light'; toggl
     <AnimatePresence mode="wait" initial={false}>
       <motion.div
         key={location.pathname}
-        initial={reduced ? false : { opacity: 0, y: 8 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={reduced ? undefined : { opacity: 0, y: -4 }}
-        transition={{ duration: 0.35, ease: EASE }}
+        initial={reduced ? false : { opacity: 0, scale: 0.975, filter: 'blur(10px)', y: 12 }}
+        animate={{ opacity: 1, scale: 1, filter: 'blur(0px)', y: 0 }}
+        exit={reduced ? undefined : { opacity: 0, scale: 1.02, filter: 'blur(6px)', y: -8 }}
+        transition={{ duration: 0.5, ease: EASE }}
       >
         <Routes location={location}>
           <Route path="/" element={<HomePage theme={theme} onToggleTheme={toggleTheme} />} />
