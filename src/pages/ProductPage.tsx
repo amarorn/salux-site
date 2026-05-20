@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { Link, useParams, Navigate } from 'react-router-dom'
-import { motion } from 'framer-motion'
+import { motion, useReducedMotion } from 'framer-motion'
 import { ArrowLeft, ArrowRight, Check } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Eyebrow } from '@/components/Eyebrow'
@@ -25,6 +25,7 @@ const fade = (delay: number) => ({
 const EASE = [0.22, 1, 0.36, 1] as const
 
 export function ProductPage({ capabilities, Nav, Footer, theme, onToggleTheme }: Props) {
+  const reduced = useReducedMotion()
   const { slug } = useParams<{ slug: string }>()
   const capability = capabilities.find((c) => c.slug === slug)
 
@@ -171,7 +172,7 @@ export function ProductPage({ capabilities, Nav, Footer, theme, onToggleTheme }:
                   {capability.deliverables.map((d, i) => (
                     <motion.li
                       key={i}
-                      initial={{ opacity: 0, x: -10 }}
+                      initial={reduced ? false : { opacity: 0, x: -10 }}
                       whileInView={{ opacity: 1, x: 0 }}
                       viewport={{ once: true, margin: '-40px' }}
                       transition={{ duration: 0.5, delay: Math.min(i, 8) * 0.04, ease: EASE }}

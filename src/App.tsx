@@ -17,6 +17,7 @@ import {
 import { SaluxSymbol } from '@/components/SaluxLogo'
 import { Styleguide } from '@/components/Styleguide'
 import { CapabilityCard } from '@/components/CapabilityCard'
+import { BigCapabilityCard } from '@/components/BigCapabilityCard'
 import { Eyebrow } from '@/components/Eyebrow'
 import { MagneticButton } from '@/components/MagneticButton'
 import { JourneyWheel } from '@/components/JourneyWheel'
@@ -37,6 +38,7 @@ import { CasesPage } from './pages/CasesPage'
 import {
   mainNav, navCta, footerNav, legalLinks, footerTagline,
   homePage, capabilities, testimonials, journeyStages, faq,
+  ernestoDornellesCase,
 } from '@/content'
 
 import heroEquipe from './assets/photos/hero-equipe.jpg'
@@ -60,15 +62,20 @@ function useReveal(route: string) {
 
 function Counter({ to, suffix = '' }: { to: number; suffix?: string }) {
   const ref = useRef<HTMLSpanElement>(null)
+  const reduced = useReducedMotion()
   const inView = useInView(ref, { once: true, amount: 0.4 })
   const [display, setDisplay] = useState(0)
   const spring = useSpring(0, { stiffness: 55, damping: 18, mass: 1 })
 
   useEffect(() => {
+    if (reduced) { setDisplay(to); return }
     if (inView) spring.set(to)
-  }, [inView, to, spring])
+  }, [inView, to, spring, reduced])
 
-  useEffect(() => spring.on('change', (v) => setDisplay(Math.round(v))), [spring])
+  useEffect(() => {
+    if (reduced) return
+    return spring.on('change', (v) => setDisplay(Math.round(v)))
+  }, [spring, reduced])
 
   return <span ref={ref} aria-live="polite">{display.toLocaleString('pt-BR')}{suffix}</span>
 }
@@ -265,12 +272,19 @@ function Hero() {
 
 function Problem() {
   const { problem } = homePage
+  const reduced = useReducedMotion()
   return (
     <section className="relative py-20 sm:py-28">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="rounded-[2rem] bg-primary text-primary-foreground overflow-hidden">
           <div className="grid lg:grid-cols-12 gap-10 p-10 sm:p-14">
-            <div className="lg:col-span-5 reveal">
+            <motion.div
+              className="lg:col-span-5"
+              initial={reduced ? false : { opacity: 0, y: 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-80px' }}
+              transition={{ duration: 0.65, ease: EASE }}
+            >
               <h2 className="font-display text-4xl sm:text-5xl leading-[1.08] tracking-tight text-balance">
                 {problem.title}
               </h2>
@@ -280,10 +294,16 @@ function Problem() {
               <Button asChild size="lg" className="mt-10 rounded-full h-12 px-6 bg-primary-foreground text-primary hover:bg-primary-foreground/90 font-medium">
                 <a href={problem.cta.href}>{problem.cta.label} <ArrowRight className="ml-2 w-4 h-4" /></a>
               </Button>
-            </div>
-            <div className="lg:col-span-7 reveal text-primary-foreground/90 leading-relaxed text-pretty space-y-5">
+            </motion.div>
+            <motion.div
+              className="lg:col-span-7 text-primary-foreground/90 leading-relaxed text-pretty space-y-5"
+              initial={reduced ? false : { opacity: 0, y: 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-80px' }}
+              transition={{ duration: 0.65, delay: 0.1, ease: EASE }}
+            >
               {problem.body.map((p, i) => <p key={i}>{p}</p>)}
-            </div>
+            </motion.div>
           </div>
         </div>
       </div>
@@ -367,10 +387,17 @@ function Journey() {
 
 function Capabilities() {
   const { capabilities: c } = homePage
+  const reduced = useReducedMotion()
   return (
     <section id="capacidades" className="relative py-24 sm:py-32 bg-secondary/40">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="grid lg:grid-cols-12 gap-10 items-end reveal">
+        <motion.div
+          className="grid lg:grid-cols-12 gap-10 items-end"
+          initial={reduced ? false : { opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: '-80px' }}
+          transition={{ duration: 0.65, ease: EASE }}
+        >
           <div className="lg:col-span-8">
             <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl leading-[1.1] tracking-tight text-balance">
               {c.title}
@@ -384,55 +411,77 @@ function Capabilities() {
               <Link to={c.cta.href}>{c.cta.label} <ArrowRight className="ml-2 w-4 h-4" /></Link>
             </Button>
           </div>
-        </div>
+        </motion.div>
 
-        {/* Camada agêntica — bloco transversal */}
-        <div className="mt-12 reveal">
-          <div className="relative rounded-3xl bg-foreground text-background overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/30 via-transparent to-accent/20 mix-blend-screen" />
-            <div className="noise" aria-hidden />
-            {/* Beams — feixes de luz irradiando do topo, reforçam o conceito de "ativação" */}
-            <Beams origin="top" intensity={0.55} />
-            <div className="relative p-8 sm:p-12 grid lg:grid-cols-12 gap-8 items-center">
-              <div className="lg:col-span-7">
-                <span className="inline-flex items-center gap-2 rounded-full bg-primary/20 ring-1 ring-primary/40 px-3 py-1 font-mono text-2xs uppercase tracking-widest text-background">
-                  <Brain className="w-3 h-3" /> {c.agentic.eyebrow}
-                </span>
-                <h3 className="mt-5 font-display text-2xl sm:text-3xl leading-tight text-balance">
-                  {c.agentic.title}
-                </h3>
-                <p className="mt-4 text-background/80 max-w-2xl">
-                  {c.agentic.body}
-                </p>
-              </div>
-              <div className="lg:col-span-5 grid grid-cols-1 gap-2">
-                {c.agentic.levels.map((a) => (
-                  <div key={a.level} className="flex items-center gap-3 rounded-xl bg-background/5 ring-1 ring-background/10 px-4 py-3">
-                    <span className="font-mono text-2xs text-background/70 w-6">{a.level}</span>
-                    <span className="font-display text-lg text-background">{a.name}</span>
-                    <span className="text-xs text-background/60 leading-snug ml-auto text-right hidden sm:block max-w-[60%]">{a.description}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Grid das 9 capacidades */}
-        <div className="mt-10 grid sm:grid-cols-2 lg:grid-cols-3 gap-5 reveal">
-          {capabilities.map((p) => (
-            <CapabilityCard
-              key={p.slug}
-              code={p.commercialName}
-              name={p.title}
-              desc={p.tagline}
-              icon={p.icon}
-              accent={p.accent}
-              image={p.image}
-              logo={p.logo}
-              href={`/capacidades/${p.slug}`}
-              ctaLabel="Ver detalhes"
+        {/* Bento grid — featured + 9 capacidades */}
+        <div className="mt-10 grid grid-cols-1 sm:grid-cols-3 gap-5">
+          {/* Card destacado: Initia, 2 colunas × 2 linhas */}
+          <motion.div
+            className="sm:col-span-2 sm:row-span-2"
+            initial={reduced ? false : { opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-60px' }}
+            transition={{ duration: 0.7, ease: EASE }}
+          >
+            <BigCapabilityCard
+              className="h-full"
+              code={capabilities[0].commercialName}
+              name={capabilities[0].title}
+              desc={capabilities[0].tagline}
+              icon={capabilities[0].icon}
+              accent={capabilities[0].accent}
+              image={capabilities[0].image!}
+              logo={capabilities[0].logo}
+              href={`/capacidades/${capabilities[0].slug}`}
+              ctaLabel="Ver solução"
+              variant="wide"
             />
+          </motion.div>
+
+          {/* Slots direita (caps 2–3) */}
+          {capabilities.slice(1, 3).map((p, i) => (
+            <motion.div
+              key={p.slug}
+              initial={reduced ? false : { opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-60px' }}
+              transition={{ duration: 0.6, delay: (i + 1) * 0.06, ease: EASE }}
+            >
+              <CapabilityCard
+                code={p.commercialName}
+                name={p.title}
+                desc={p.tagline}
+                icon={p.icon}
+                accent={p.accent}
+                image={p.image}
+                logo={p.logo}
+                href={`/capacidades/${p.slug}`}
+                ctaLabel="Ver detalhes"
+              />
+            </motion.div>
+          ))}
+
+          {/* Restante (caps 4–9) — 3 colunas */}
+          {capabilities.slice(3).map((p, i) => (
+            <motion.div
+              key={p.slug}
+              initial={reduced ? false : { opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-60px' }}
+              transition={{ duration: 0.6, delay: Math.min(i, 5) * 0.05, ease: EASE }}
+            >
+              <CapabilityCard
+                code={p.commercialName}
+                name={p.title}
+                desc={p.tagline}
+                icon={p.icon}
+                accent={p.accent}
+                image={p.image}
+                logo={p.logo}
+                href={`/capacidades/${p.slug}`}
+                ctaLabel="Ver detalhes"
+              />
+            </motion.div>
           ))}
         </div>
       </div>
@@ -440,18 +489,81 @@ function Capabilities() {
   )
 }
 
+function AgenticLayer() {
+  const { capabilities: c } = homePage
+  const reduced = useReducedMotion()
+  return (
+    <section className="relative py-16 sm:py-20">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <motion.div
+          initial={reduced ? false : { opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: '-80px' }}
+          transition={{ duration: 0.65, ease: EASE }}
+        >
+          <div className="relative rounded-3xl bg-foreground text-background overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/30 via-transparent to-accent/20 mix-blend-screen" />
+            <div className="noise" aria-hidden />
+            <Beams origin="top" intensity={0.55} />
+            <div className="relative p-8 sm:p-12 grid lg:grid-cols-12 gap-8 items-center">
+              <div className="lg:col-span-7">
+                <span className="inline-flex items-center gap-2 rounded-full bg-primary/20 ring-1 ring-primary/40 px-3 py-1 font-mono text-2xs uppercase tracking-widest text-background">
+                  <Brain className="w-3 h-3" /> {c.agentic.eyebrow}
+                </span>
+                <h2 className="mt-5 font-display text-2xl sm:text-3xl leading-tight text-balance">
+                  {c.agentic.title}
+                </h2>
+                <p className="mt-4 text-background/80 max-w-2xl">
+                  {c.agentic.body}
+                </p>
+              </div>
+              <div className="lg:col-span-5 grid grid-cols-1 gap-2">
+                {c.agentic.levels.map((a, i) => (
+                  <motion.div
+                    key={a.level}
+                    initial={reduced ? false : { opacity: 0, x: 16 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true, margin: '-40px' }}
+                    transition={{ duration: 0.5, delay: i * 0.08, ease: EASE }}
+                    className="flex items-center gap-3 rounded-xl bg-background/5 ring-1 ring-background/10 px-4 py-3"
+                  >
+                    <span className="font-mono text-2xs text-background/70 w-6">{a.level}</span>
+                    <span className="font-display text-lg text-background">{a.name}</span>
+                    <span className="text-xs text-background/60 leading-snug ml-auto text-right hidden sm:block max-w-[60%]">{a.description}</span>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </motion.div>
+      </div>
+    </section>
+  )
+}
+
 function Credentials() {
   const { credentials } = homePage
+  const reduced = useReducedMotion()
+  const counters = [
+    { to: 25, suffix: '+', label: 'anos no setor', delay: 0 },
+    { to: 14, suffix: '', label: 'estados', delay: 0.15 },
+    { to: 4000, suffix: '+', label: 'colaboradores · Grupo Bringel', delay: 0.3 },
+  ] as const
   return (
     <section className="relative py-24 sm:py-32">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="relative rounded-[2rem] bg-foreground text-background overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-primary/40 via-transparent to-accent/20 mix-blend-screen" />
           <div className="noise" aria-hidden />
-          {/* Aurora — reforça a identidade visual azul na seção de credenciais */}
           <Aurora intensity={0.3} />
           <div className="relative grid lg:grid-cols-12 gap-10 p-10 sm:p-14 items-center">
-            <div className="lg:col-span-7 reveal">
+            <motion.div
+              className="lg:col-span-7"
+              initial={reduced ? false : { opacity: 0, y: 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-80px' }}
+              transition={{ duration: 0.65, ease: EASE }}
+            >
               <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl leading-[1.08] tracking-tight text-balance">
                 {credentials.title}
               </h2>
@@ -466,18 +578,18 @@ function Credentials() {
                 ))}
               </ul>
               <div className="mt-8 grid grid-cols-3 max-w-md gap-6 text-background">
-                <div>
-                  <div className="font-display text-3xl"><Counter to={25} suffix="+" /></div>
-                  <div className="text-xs text-background/60 mt-1">anos no setor</div>
-                </div>
-                <div>
-                  <div className="font-display text-3xl"><Counter to={14} /></div>
-                  <div className="text-xs text-background/60 mt-1">estados</div>
-                </div>
-                <div>
-                  <div className="font-display text-3xl"><Counter to={4000} suffix="+" /></div>
-                  <div className="text-xs text-background/60 mt-1">colaboradores · Grupo Bringel</div>
-                </div>
+                {counters.map(({ to, suffix, label, delay }) => (
+                  <motion.div
+                    key={label}
+                    initial={reduced ? false : { opacity: 0, y: 8 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, margin: '-40px' }}
+                    transition={{ duration: 0.5, delay, ease: EASE }}
+                  >
+                    <div className="font-display text-3xl"><Counter to={to} suffix={suffix} /></div>
+                    <div className="text-xs text-background/60 mt-1">{label}</div>
+                  </motion.div>
+                ))}
               </div>
               <div className="mt-8 flex items-center gap-3 flex-wrap">
                 <div className="inline-flex items-center gap-2 rounded-full bg-background/5 ring-1 ring-background/15 px-4 py-2 text-sm text-background/90">
@@ -487,20 +599,20 @@ function Credentials() {
                   <Link to={credentials.cta.href}>{credentials.cta.label} <ArrowRight className="ml-2 w-4 h-4" /></Link>
                 </Button>
               </div>
-            </div>
+            </motion.div>
 
-            <div className="lg:col-span-5 reveal flex justify-center lg:justify-end">
-              <motion.div
-                initial={{ opacity: 0, scale: 0.94, y: 20 }}
-                whileInView={{ opacity: 1, scale: 1, y: 0 }}
-                viewport={{ once: true, margin: '-80px' }}
-                transition={{ duration: 0.8, ease: EASE }}
-                className="relative w-[260px] h-[520px] rounded-[2.4rem] bg-background/10 ring-8 ring-background/20 overflow-hidden shadow-[0_40px_80px_-30px_rgba(0,0,0,0.6)]"
-              >
+            <motion.div
+              className="lg:col-span-5 flex justify-center lg:justify-end"
+              initial={reduced ? false : { opacity: 0, scale: 0.94, y: 20 }}
+              whileInView={{ opacity: 1, scale: 1, y: 0 }}
+              viewport={{ once: true, margin: '-80px' }}
+              transition={{ duration: 0.8, ease: EASE }}
+            >
+              <div className="relative w-[260px] h-[520px] rounded-[2.4rem] bg-background/10 ring-8 ring-background/20 overflow-hidden shadow-[0_40px_80px_-30px_rgba(0,0,0,0.6)]">
                 <img src={mockupDevice} alt="App Salux em dispositivo móvel" className="absolute inset-0 w-full h-full object-cover" />
                 <div className="absolute top-2 left-1/2 -translate-x-1/2 w-24 h-5 rounded-full bg-background/40" />
-              </motion.div>
-            </div>
+              </div>
+            </motion.div>
           </div>
         </div>
       </div>
@@ -510,15 +622,58 @@ function Credentials() {
 
 function CasesPreview() {
   const { cases } = homePage
+  const reduced = useReducedMotion()
+  const highlights = ernestoDornellesCase.metrics.filter((_, i) => [0, 1, 5].includes(i))
   return (
     <section id="cases" className="relative py-24 sm:py-32 bg-secondary/40">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="reveal mb-12 max-w-3xl">
+        <motion.div
+          className="mb-12 max-w-3xl"
+          initial={reduced ? false : { opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: '-60px' }}
+          transition={{ duration: 0.65, ease: EASE }}
+        >
           <Eyebrow tone="primary">{cases.eyebrow}</Eyebrow>
           <h2 className="mt-4 font-display text-3xl sm:text-4xl lg:text-5xl leading-[1.1] tracking-tight text-balance">
             {cases.title}
           </h2>
-        </div>
+        </motion.div>
+
+        <motion.div
+          initial={reduced ? false : { opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: '-60px' }}
+          transition={{ duration: 0.7, delay: 0.1, ease: EASE }}
+          className="rounded-3xl bg-card ring-1 ring-border p-8 sm:p-10 mb-8"
+        >
+          <div className="font-mono text-2xs uppercase tracking-label text-muted-foreground">
+            {ernestoDornellesCase.institution} · {ernestoDornellesCase.location}
+          </div>
+          <h3 className="mt-2 font-display text-xl sm:text-2xl leading-tight text-balance max-w-2xl">
+            {ernestoDornellesCase.headline}
+          </h3>
+          <div className="mt-8 grid grid-cols-3 gap-6 border-t border-border pt-6">
+            {highlights.map((m, i) => (
+              <motion.div
+                key={m.label}
+                initial={reduced ? false : { opacity: 0, y: 8 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: '-40px' }}
+                transition={{ duration: 0.5, delay: i * 0.1, ease: EASE }}
+              >
+                <div className="font-display text-2xl sm:text-3xl text-primary">{m.value}</div>
+                <div className="mt-1 text-xs text-muted-foreground">{m.label}</div>
+              </motion.div>
+            ))}
+          </div>
+          <div className="mt-6">
+            <Link to="/cases" className="inline-flex items-center gap-2 text-sm text-primary hover:text-primary/80 transition">
+              Ver case completo <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
+        </motion.div>
+
         <div className="text-center">
           <Button asChild variant="outline" className="rounded-full">
             <Link to="/cases">Ver todos os cases <ArrowRight className="ml-2 w-4 h-4" /></Link>
@@ -531,15 +686,22 @@ function CasesPreview() {
 
 function TestimonialsSection() {
   const { testimonials: t } = homePage
+  const reduced = useReducedMotion()
   return (
     <section className="relative py-24 sm:py-32">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="reveal mb-12 max-w-3xl">
+        <motion.div
+          className="mb-12 max-w-3xl"
+          initial={reduced ? false : { opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: '-60px' }}
+          transition={{ duration: 0.65, ease: EASE }}
+        >
           <Eyebrow tone="primary">{t.eyebrow}</Eyebrow>
           <h2 className="mt-4 font-display text-3xl sm:text-4xl lg:text-5xl leading-[1.1] tracking-tight text-balance">
             {t.title}
           </h2>
-        </div>
+        </motion.div>
         <Testimonials items={testimonials} />
       </div>
     </section>
@@ -548,17 +710,24 @@ function TestimonialsSection() {
 
 function CTA() {
   const { cta } = homePage
+  const reduced = useReducedMotion()
   return (
     <section id="contato" className="relative py-24 sm:py-32 bg-secondary/40">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="reveal mb-12 max-w-4xl">
+        <motion.div
+          className="mb-12 max-w-4xl"
+          initial={reduced ? false : { opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: '-60px' }}
+          transition={{ duration: 0.65, ease: EASE }}
+        >
           <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl leading-[1.1] tracking-tight text-balance">
             {cta.title}
           </h2>
           <p className="mt-5 text-muted-foreground text-pretty max-w-2xl">
             {cta.subtitle}
           </p>
-        </div>
+        </motion.div>
 
         <div className="grid lg:grid-cols-12 gap-8 items-start">
           <div className="lg:col-span-5 space-y-3">
@@ -665,6 +834,7 @@ function HomePage({ theme, onToggleTheme }: { theme: 'dark' | 'light'; onToggleT
         <Problem />
         <Journey />
         <Capabilities />
+        <AgenticLayer />
         <Credentials />
         <CasesPreview />
         <TestimonialsSection />

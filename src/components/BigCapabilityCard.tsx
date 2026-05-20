@@ -17,6 +17,8 @@ export type BigCapabilityCardProps = {
   ctaLabel?: string
   /** Aspect ratio do card — 'wide' = 2 colunas, 'tall' = 1 coluna mas mais alta */
   variant?: 'wide' | 'tall'
+  /** Classe extra para o elemento raiz (ex: h-full no bento grid) */
+  className?: string
 }
 
 /**
@@ -43,6 +45,7 @@ export function BigCapabilityCard({
   href,
   ctaLabel = 'Conhecer solução',
   variant = 'wide',
+  className = '',
 }: BigCapabilityCardProps) {
   const accentClass = accent === 'primary' ? 'text-primary' : 'text-accent'
   const ref = useSpotlight<HTMLAnchorElement>()
@@ -53,7 +56,7 @@ export function BigCapabilityCard({
       to={href}
       className={`spotlight group relative rounded-2xl glass border-gradient overflow-hidden flex ${
         variant === 'wide' ? 'flex-col lg:flex-row min-h-[320px]' : 'flex-col min-h-[460px]'
-      } will-change-transform transition-all duration-500 ease-out hover:scale-[1.01] hover:-translate-y-0.5 hover:shadow-[0_30px_80px_-20px_hsl(var(--primary)/0.4)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60`}
+      } will-change-transform transition-all duration-500 ease-out hover:scale-[1.01] hover:-translate-y-0.5 hover:shadow-[0_30px_80px_-20px_hsl(var(--primary)/0.4)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 ${className}`}
     >
       {/* Imagem hero */}
       <div className={`relative overflow-hidden ${variant === 'wide' ? 'lg:w-1/2 h-56 lg:h-auto' : 'h-56'}`}>
