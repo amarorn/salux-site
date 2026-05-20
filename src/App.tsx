@@ -11,7 +11,17 @@ import {
 } from 'lucide-react'
 import { SaluxSymbol } from '@/components/SaluxLogo'
 import { Styleguide } from '@/components/Styleguide'
-import { CapabilityCard } from '@/components/CapabilityCard'
+import { BigCapabilityCard } from '@/components/BigCapabilityCard'
+import womanLaptopJpg from './assets/images/woman-laptop.jpg'
+import womanLaptopWebp from './assets/images/woman-laptop.webp'
+import doctorTabletJpg from './assets/images/doctor-tablet.jpg'
+import doctorTabletWebp from './assets/images/doctor-tablet.webp'
+import labDiagnosticsJpg from './assets/images/lab-diagnostics.jpg'
+import labDiagnosticsWebp from './assets/images/lab-diagnostics.webp'
+import meetingDashboardJpg from './assets/images/meeting-dashboard.jpg'
+import meetingDashboardWebp from './assets/images/meeting-dashboard.webp'
+import appPhoneJpg from './assets/images/app-phone.jpg'
+import appPhoneWebp from './assets/images/app-phone.webp'
 import { MetricCard } from '@/components/MetricCard'
 import { JourneyStep } from '@/components/JourneyStep'
 import { Eyebrow, CountBadge } from '@/components/Eyebrow'
@@ -94,6 +104,7 @@ const products: ProductDef[] = [
     tagline: 'Plataforma nativamente inteligente que conecta prontuário, processos assistenciais, administrativos e financeiros numa única base de dados.',
     desc: 'Plataforma robusta que conecta prontuário, processos assistenciais, administrativos e financeiros em uma base nativamente inteligente.',
     icon: Boxes, accent: 'primary', logo: initiaLogo,
+    heroImage: { jpg: womanLaptopJpg, webp: womanLaptopWebp, alt: 'Gestora hospitalar usando dashboard de eficiência operacional' },
     features: [
       { icon: Brain, label: 'Inteligência embarcada', desc: 'Agentes de IA que informam, analisam e executam sob governança clínica.' },
       { icon: Network, label: 'Integração total', desc: 'Assistência, financeiro e operação conectados numa única fonte de verdade.' },
@@ -106,6 +117,7 @@ const products: ProductDef[] = [
     tagline: 'Tecnologia 100% SaaS para organizar dados populacionais, filas, jornadas e redes de cuidado — integrada à RNDS.',
     desc: 'Tecnologia 100% SaaS para organizar dados populacionais, filas, jornadas, redes de cuidado e integração com a RNDS.',
     icon: Globe2, accent: 'accent',
+    heroImage: { jpg: appPhoneJpg, webp: appPhoneWebp, alt: 'App de saúde mobile com agendamentos e notificações' },
     features: [
       { icon: Users, label: 'Gestão populacional', desc: 'Organização de cadastros, territórios e perfis de saúde por comunidade.' },
       { icon: CalendarClock, label: 'Filas inteligentes', desc: 'Agendamento e triagem com priorização baseada em risco e contexto.' },
@@ -118,6 +130,7 @@ const products: ProductDef[] = [
     tagline: 'Plataforma que conecta especialistas, instituições e pacientes com prontuário, agenda e dispositivos médicos integrados.',
     desc: 'Plataforma que conecta especialistas, instituições e pacientes — com prontuário, agenda e dispositivos médicos integrados.',
     icon: Headphones, accent: 'primary', logo: cloudLogo,
+    heroImage: { jpg: doctorTabletJpg, webp: doctorTabletWebp, alt: 'Médico revisando ECG em tablet holográfico' },
     features: [
       { icon: Stethoscope, label: 'Teleconsulta', desc: 'Atendimento especializado por vídeo com prontuário integrado em tempo real.' },
       { icon: CalendarClock, label: 'Agenda inteligente', desc: 'Gestão de filas de telemedicina com priorização e notificações automáticas.' },
@@ -130,6 +143,7 @@ const products: ProductDef[] = [
     tagline: 'Telerradiologia 24/7, PACS em nuvem e rede de especialistas para sustentar exames e laudos sem interrupções.',
     desc: 'Telerradiologia 24/7, PACS em nuvem e rede de especialistas para sustentar exames e laudos sem interrupções.',
     icon: ScanLine, accent: 'accent', logo: medplaceLogo,
+    heroImage: { jpg: labDiagnosticsJpg, webp: labDiagnosticsWebp, alt: 'Laboratório de diagnóstico avançado com equipamento MRI' },
     features: [
       { icon: ScanLine, label: 'Telerradiologia 24/7', desc: 'Laudos por especialistas a qualquer hora, sem depender de equipe local.' },
       { icon: Eye, label: 'PACS em nuvem', desc: 'Armazenamento e acesso a imagens médicas com segurança e escala.' },
@@ -166,6 +180,7 @@ const products: ProductDef[] = [
     tagline: 'Escalas inteligentes, alocação por competência, controle de horas e conformidade trabalhista com previsibilidade.',
     desc: 'Escalas inteligentes, alocação por competência, controle de horas e conformidade trabalhista com previsibilidade.',
     icon: Users, accent: 'primary', logo: stargridLogo,
+    heroImage: { jpg: meetingDashboardJpg, webp: meetingDashboardWebp, alt: 'Equipe revisando dashboard hospitalar em sala de reunião' },
     features: [
       { icon: CalendarClock, label: 'Escalas inteligentes', desc: 'Criação e gestão de escalas com regras operacionais e alertas automáticos.' },
       { icon: Users, label: 'Alocação por competência', desc: 'Distribuição de equipes baseada em perfil, especialidade e disponibilidade.' },
@@ -524,7 +539,14 @@ function Journey() {
   )
 }
 
-const FEATURED = ['initia', 'cloudhealth', 'stargrid']
+const FEATURED = ['initia', 'cloudhealth', 'medplace', 'stargrid']
+
+const FEATURED_IMAGES: Record<string, { jpg: string; webp: string }> = {
+  initia: { jpg: womanLaptopJpg, webp: womanLaptopWebp },
+  cloudhealth: { jpg: doctorTabletJpg, webp: doctorTabletWebp },
+  medplace: { jpg: labDiagnosticsJpg, webp: labDiagnosticsWebp },
+  stargrid: { jpg: meetingDashboardJpg, webp: meetingDashboardWebp },
+}
 
 function Capabilities() {
   const featured = products.filter(p => FEATURED.includes(p.slug))
@@ -575,20 +597,30 @@ function Capabilities() {
           </div>
         </div>
 
-        <div className="mt-10 grid sm:grid-cols-2 lg:grid-cols-3 gap-5 reveal overflow-visible">
-          {featured.map((c) => (
-            <CapabilityCard
-              key={c.slug}
-              code={c.code}
-              name={c.name}
-              desc={c.desc}
-              icon={c.icon}
-              accent={c.accent}
-              logo={c.logo}
-              href={`/capacidades/${c.slug}`}
-              ctaLabel="Ver detalhes"
-            />
-          ))}
+        {/* Bento grid — 4 destaques (2 wide + 2 tall) */}
+        <div className="mt-10 grid grid-cols-1 lg:grid-cols-3 gap-5 reveal overflow-visible">
+          {featured.map((c, i) => {
+            const img = FEATURED_IMAGES[c.slug]
+            // Layout pattern: Initia [span 2] · CloudHealth [span 1] · MedPlace [span 1] · StarGrid [span 2]
+            const isWide = i === 0 || i === 3
+            return (
+              <div key={c.slug} className={isWide ? 'lg:col-span-2' : 'lg:col-span-1'}>
+                <BigCapabilityCard
+                  code={c.code}
+                  name={c.name}
+                  desc={c.desc}
+                  icon={c.icon}
+                  accent={c.accent}
+                  logo={c.logo}
+                  image={img?.jpg ?? ''}
+                  imageWebp={img?.webp}
+                  href={`/capacidades/${c.slug}`}
+                  variant={isWide ? 'wide' : 'tall'}
+                  ctaLabel="Ver solução"
+                />
+              </div>
+            )
+          })}
         </div>
 
         <div className="mt-10 reveal text-center">

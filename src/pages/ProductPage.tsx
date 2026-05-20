@@ -15,6 +15,8 @@ export type ProductDef = {
   icon: LucideIcon
   accent: 'primary' | 'accent'
   logo?: string
+  /** Imagem hero (substitui o slot do logo gigante no hero + slot foto) */
+  heroImage?: { jpg: string; webp: string; alt: string }
   features: { icon: LucideIcon; label: string; desc: string }[]
 }
 
@@ -111,7 +113,27 @@ export function ProductPage({ products, Nav, Footer, theme, onToggleTheme }: Pro
                 transition={{ duration: 1, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
                 className="relative"
               >
-                {product.logo ? (
+                {product.heroImage ? (
+                  <div className={`relative w-full max-w-md aspect-[4/5] rounded-3xl glass border-gradient overflow-hidden ${glowClass}`}>
+                    <picture>
+                      <source srcSet={product.heroImage.webp} type="image/webp" />
+                      <img
+                        src={product.heroImage.jpg}
+                        alt={product.heroImage.alt}
+                        className="absolute inset-0 w-full h-full object-cover"
+                      />
+                    </picture>
+                    <div className="absolute inset-0 bg-gradient-to-t from-background/70 via-background/10 to-transparent" />
+                    {product.logo && (
+                      <div className="absolute left-6 bottom-6 right-6 flex items-center justify-between gap-3">
+                        <img src={product.logo} alt={product.code} className="h-8 max-w-[160px] object-contain logo-tint" />
+                        <div className={`w-11 h-11 rounded-xl glass flex items-center justify-center ${accentColor}`}>
+                          <Icon className="w-5 h-5" />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ) : product.logo ? (
                   <div className={`w-64 h-64 rounded-3xl glass border-gradient flex items-center justify-center p-10 ${glowClass}`}>
                     <img src={product.logo} alt={product.code} className="w-full h-full object-contain logo-tint" />
                   </div>
@@ -175,7 +197,7 @@ export function ProductPage({ products, Nav, Footer, theme, onToggleTheme }: Pro
         </section>
       )}
 
-      {/* Slot para foto — placeholder elegante */}
+      {/* Slot para foto — usa heroImage quando disponível, senão placeholder */}
       <section className="py-32 border-t border-border">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <motion.div
@@ -183,14 +205,41 @@ export function ProductPage({ products, Nav, Footer, theme, onToggleTheme }: Pro
             whileInView={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
             viewport={{ once: true, margin: '-60px' }}
             transition={{ duration: 0.75, ease: [0.22, 1, 0.36, 1] }}
-            className="aspect-video rounded-3xl glass border-gradient overflow-hidden flex items-center justify-center"
+            className="relative aspect-video rounded-3xl glass border-gradient overflow-hidden"
           >
-            <div className="text-center">
-              <div className={`mx-auto w-16 h-16 rounded-2xl glass flex items-center justify-center mb-4 ${accentColor}`}>
-                <Icon className="w-8 h-8" strokeWidth={1.5} />
+            {product.heroImage ? (
+              <>
+                <picture>
+                  <source srcSet={product.heroImage.webp} type="image/webp" />
+                  <img
+                    src={product.heroImage.jpg}
+                    alt={product.heroImage.alt}
+                    className="absolute inset-0 w-full h-full object-cover"
+                    loading="lazy"
+                  />
+                </picture>
+                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-background/85 via-background/40 to-transparent p-8 sm:p-10">
+                  <div className="flex items-center gap-4">
+                    <div className={`w-12 h-12 rounded-xl glass flex items-center justify-center shrink-0 ${accentColor}`}>
+                      <Icon className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <p className="font-mono text-2xs uppercase tracking-widest text-muted-foreground">{product.code}</p>
+                      <p className="font-display text-xl sm:text-2xl mt-1 leading-tight">{product.name}</p>
+                    </div>
+                  </div>
+                </div>
+              </>
+            ) : (
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="text-center">
+                  <div className={`mx-auto w-16 h-16 rounded-2xl glass flex items-center justify-center mb-4 ${accentColor}`}>
+                    <Icon className="w-8 h-8" strokeWidth={1.5} />
+                  </div>
+                  <p className="font-mono text-xs uppercase tracking-widest text-muted-foreground">Imagem em breve</p>
+                </div>
               </div>
-              <p className="font-mono text-xs uppercase tracking-widest text-muted-foreground">Imagem em breve</p>
-            </div>
+            )}
           </motion.div>
         </div>
       </section>
