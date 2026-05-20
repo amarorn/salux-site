@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
-import { motion, useReducedMotion } from 'framer-motion'
-import { Routes, Route, Link, Navigate } from 'react-router-dom'
+import { motion, useReducedMotion, useScroll, useTransform, useSpring, useInView, AnimatePresence } from 'framer-motion'
+import { Routes, Route, Link, Navigate, useLocation } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import {
@@ -29,7 +29,6 @@ import { Aurora } from '@/components/Aurora'
 import { Beams } from '@/components/Beams'
 import { MagneticButton } from '@/components/MagneticButton'
 import { VideoBackground } from '@/components/VideoBackground'
-import SplashCursor from '@/components/SplashCursor'
 import { ProductPage, type ProductDef } from './pages/ProductPage'
 import { CapabilitiesPage } from './pages/CapabilitiesPage'
 
@@ -62,30 +61,19 @@ function useReveal(route: string) {
   }, [route])
 }
 
-function Counter({ to, suffix = '', duration = 1600 }: { to: number; suffix?: string; duration?: number }) {
-  const [v, setV] = useState(0)
+function Counter({ to, suffix = '' }: { to: number; suffix?: string }) {
   const ref = useRef<HTMLSpanElement>(null)
+  const inView = useInView(ref, { once: true, amount: 0.4 })
+  const [display, setDisplay] = useState(0)
+  const spring = useSpring(0, { stiffness: 55, damping: 18, mass: 1 })
+
   useEffect(() => {
-    if (!ref.current) return
-    const io = new IntersectionObserver((entries) => {
-      entries.forEach((e) => {
-        if (e.isIntersecting) {
-          const start = performance.now()
-          const tick = (t: number) => {
-            const p = Math.min(1, (t - start) / duration)
-            const eased = 1 - Math.pow(1 - p, 3)
-            setV(Math.round(to * eased))
-            if (p < 1) requestAnimationFrame(tick)
-          }
-          requestAnimationFrame(tick)
-          io.disconnect()
-        }
-      })
-    }, { threshold: 0.4 })
-    io.observe(ref.current)
-    return () => io.disconnect()
-  }, [to, duration])
-  return <span ref={ref} aria-live="polite">{v.toLocaleString('pt-BR')}{suffix}</span>
+    if (inView) spring.set(to)
+  }, [inView, to, spring])
+
+  useEffect(() => spring.on('change', (v) => setDisplay(Math.round(v))), [spring])
+
+  return <span ref={ref} aria-live="polite">{display.toLocaleString('pt-BR')}{suffix}</span>
 }
 
 const journey = [
@@ -287,17 +275,26 @@ function Nav({ theme, onToggleTheme }: { theme: 'dark' | 'light'; onToggleTheme:
   )
 }
 
-const heroBlur = (delay: number) => ({
-  initial: { opacity: 0, filter: 'blur(12px)' },
-  animate: { opacity: 1, filter: 'blur(0px)' },
-  transition: { duration: 0.65, delay, ease: [0.22, 1, 0.36, 1] as const },
-})
+const heroEase = [0.22, 1, 0.36, 1] as const
 
 function Hero() {
   const reduced = useReducedMotion()
+  const sectionRef = useRef<HTMLElement>(null)
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ['start start', 'end start'],
+  })
+  const bgScale = useTransform(scrollYProgress, [0, 1], [1, 1.12])
+  const bgOpacity = useTransform(scrollYProgress, [0, 1], [1, 0.4])
+  const contentY = useTransform(scrollYProgress, [0, 1], [0, -80])
+  const contentOpacity = useTransform(scrollYProgress, [0, 0.7], [1, 0])
+
   return (
-    <section id="top" className="relative pt-44 pb-36 sm:pt-56 sm:pb-48 overflow-hidden">
-      <div className="absolute inset-0 -z-10">
+    <section ref={sectionRef} id="top" className="relative pt-44 pb-36 sm:pt-56 sm:pb-48 overflow-hidden">
+      <motion.div
+        className="absolute inset-0 -z-10"
+        style={reduced ? undefined : { scale: bgScale, opacity: bgOpacity }}
+      >
         <VideoBackground
           mp4={dashboardMp4}
           webm={dashboardWebm}
@@ -306,47 +303,46 @@ function Hero() {
         />
         <div className="absolute inset-0 bg-background/70" />
         <div className="absolute inset-0 bg-gradient-to-b from-background/40 via-transparent to-background" />
-        <Aurora intensity={0.55} />
-        <div className="absolute inset-0 bg-grid mask-radial opacity-30" />
-        <div className="absolute inset-0 bg-dotgrid mask-fade-b" />
-      </div>
+        <Aurora intensity={0.25} />
+        <div className="absolute inset-0 bg-grid mask-radial opacity-[0.15]" />
+      </motion.div>
 
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <motion.div
+        className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8"
+        style={reduced ? undefined : { y: contentY, opacity: contentOpacity }}
+      >
         <div className="grid lg:grid-cols-12 gap-8 items-end">
           <div className="lg:col-span-8">
-            <motion.div {...(reduced ? {} : heroBlur(0.05))}>
+            <motion.div
+              initial={reduced ? false : { opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, ease: heroEase }}
+            >
               <Eyebrow tone="primary" className="px-3 py-1">
                 <Sparkles className="w-3 h-3 mr-1.5" /> Nova geração · Operação ativada por inteligência
               </Eyebrow>
             </motion.div>
 
-            <h1 className="mt-8 font-display text-[clamp(2.2rem,6vw,5.4rem)] leading-[1.05] tracking-tight text-pretty pb-1">
-              <motion.span className="inline" {...(reduced ? {} : heroBlur(0.15))}>
-                Uma nova forma de{' '}
-              </motion.span>
-              <em className="italic text-gradient-emerald not-italic-fallback">
-                <motion.span className="inline" {...(reduced ? {} : heroBlur(0.28))}>
-                  coordenar
-                </motion.span>
-              </em>
+            <motion.h1
+              initial={reduced ? false : { opacity: 0, y: 18, filter: 'blur(10px)' }}
+              animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+              transition={{ duration: 0.7, delay: 0.1, ease: heroEase }}
+              className="mt-8 font-display text-[clamp(2.2rem,6vw,5.4rem)] leading-[1.05] tracking-tight text-pretty pb-1"
+            >
+              Uma nova forma de{' '}
+              <em className="italic text-gradient-emerald not-italic-fallback">coordenar</em>
               <br />
-              <motion.span className="inline" {...(reduced ? {} : heroBlur(0.42))}>
-                cuidado, operação,
-              </motion.span>
+              cuidado, operação,
               <br />
-              <motion.span className="inline" {...(reduced ? {} : heroBlur(0.56))}>
-                receita e decisão
-              </motion.span>
+              receita e decisão
               <br />
-              <span className="text-gradient-bone">
-                <motion.span className="inline" {...(reduced ? {} : heroBlur(0.7))}>
-                  em saúde.
-                </motion.span>
-              </span>
-            </h1>
+              <span className="text-gradient-bone">em saúde.</span>
+            </motion.h1>
 
             <motion.p
-              {...(reduced ? {} : heroBlur(0.88))}
+              initial={reduced ? false : { opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.35, ease: heroEase }}
               className="mt-10 max-w-2xl text-lg text-pretty leading-relaxed scroll-color"
             >
               O <span className="font-medium">Ecossistema Salux</span> estrutura capacidades especializadas que integram
@@ -355,11 +351,13 @@ function Hero() {
             </motion.p>
 
             <motion.div
-              {...(reduced ? {} : { initial: { opacity: 0, y: 12 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.5, delay: 1.0, ease: [0.22, 1, 0.36, 1] as const } })}
+              initial={reduced ? false : { opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.5, ease: heroEase }}
               className="mt-12 flex flex-wrap gap-3"
             >
               <MagneticButton strength={0.3} maxOffset={10}>
-                <Button asChild size="lg" className="rounded-full h-12 px-6 bg-primary hover:bg-primary/90 text-primary-foreground font-medium glow-primary">
+                <Button asChild size="lg" className="rounded-full h-12 px-6 bg-primary hover:bg-primary/90 text-primary-foreground font-medium">
                   <a href="#capacidades">Conheça o Ecossistema <ArrowRight className="ml-2 w-4 h-4" /></a>
                 </Button>
               </MagneticButton>
@@ -373,7 +371,7 @@ function Hero() {
 
           <div className="lg:col-span-4 image-animated">
             <div className="relative aspect-square max-w-md mx-auto">
-              <div className="absolute inset-0 rounded-full border border-border/60 animate-orbit">
+              <div className="absolute inset-0 rounded-full border border-border/60">
                 {[Stethoscope, Eye, FileSignature, Users, Wallet, ScanLine, Headphones, ShieldCheck].map((Ic, i, arr) => {
                   const angle = (i / arr.length) * Math.PI * 2
                   const x = 50 + 50 * Math.cos(angle)
@@ -390,7 +388,7 @@ function Hero() {
               <div className="absolute inset-20 rounded-full border border-border/30" />
               <div className="absolute inset-0 flex items-center justify-center">
                 <div className="relative w-40 h-40 rounded-full glass border-gradient flex items-center justify-center glow-brand">
-                  <div className="absolute inset-2 rounded-full bg-gradient-to-br from-primary/15 to-accent/10 animate-pulse-slow" />
+                  <div className="absolute inset-2 rounded-full bg-gradient-to-br from-primary/15 to-accent/10" />
                   <SaluxSymbol className="relative w-20 h-20 animate-float" />
                 </div>
               </div>
@@ -405,14 +403,14 @@ function Hero() {
             <span className="h-px flex-1 bg-border" />
           </div>
           <div className="overflow-hidden mask-fade-b">
-            <div className="flex gap-12 animate-marquee whitespace-nowrap text-muted-foreground/70 w-max">
+            <div className="flex gap-12 animate-marquee whitespace-nowrap text-muted-foreground/50 w-max">
               {[...credentials, ...credentials, ...credentials].map((c, i) => (
                 <span key={i} className="font-mono text-xs tracking-kbd">{c}</span>
               ))}
             </div>
           </div>
         </div>
-      </div>
+      </motion.div>
     </section>
   )
 }
@@ -650,9 +648,8 @@ function Initia() {
         />
         <div className="absolute inset-0 bg-background/75" />
         <div className="absolute inset-0 bg-gradient-to-b from-background via-transparent to-background" />
-        <Beams origin="top" intensity={0.4} />
-        <div className="absolute inset-0 bg-grid mask-radial opacity-20" />
-        <div className="noise" />
+        <Beams origin="top" intensity={0.2} />
+        <div className="absolute inset-0 bg-grid mask-radial opacity-[0.1]" />
       </div>
 
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -856,7 +853,7 @@ function CTA() {
       <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
         <div className="reveal relative rounded-[2rem] glass overflow-hidden border-gradient">
           <div className="absolute inset-0 bg-gradient-to-br from-primary/15 via-transparent to-accent/10" />
-          <div className="absolute -top-20 -right-20 w-[400px] h-[400px] bg-primary/20 blur-[120px] rounded-full animate-pulse-slow" />
+          <div className="absolute -top-20 -right-20 w-[400px] h-[400px] bg-primary/20 blur-[120px] rounded-full" />
           <div className="absolute -bottom-20 -left-20 w-[400px] h-[400px] bg-accent/15 blur-[120px] rounded-full" />
           <div className="relative p-10 sm:p-14 grid lg:grid-cols-12 gap-10 items-center">
             <div className="lg:col-span-7">
@@ -884,7 +881,7 @@ function CTA() {
                 <label htmlFor="contact-org" className="font-mono text-2xs uppercase tracking-widest text-muted-foreground">Instituição</label>
                 <input id="contact-org" name="organization" type="text" required autoComplete="organization" className="mt-1 w-full bg-secondary/40 border border-border rounded-xl px-4 py-3 text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus:border-primary transition" placeholder="Hospital, rede, prefeitura..." />
               </div>
-              <Button className="w-full rounded-xl h-12 bg-primary hover:bg-primary/90 text-primary-foreground font-medium glow-primary mt-2">
+              <Button className="w-full rounded-xl h-12 bg-primary hover:bg-primary/90 text-primary-foreground font-medium mt-2">
                 Falar com um especialista <ArrowRight className="ml-2 w-4 h-4" />
               </Button>
             </form>
@@ -939,24 +936,10 @@ function Footer() {
   )
 }
 
-const splashProps = {
-  DENSITY_DISSIPATION: 3.5,
-  VELOCITY_DISSIPATION: 2,
-  PRESSURE: 0.1,
-  CURL: 3,
-  SPLAT_RADIUS: 0.2,
-  SPLAT_FORCE: 6000,
-  COLOR_UPDATE_SPEED: 10,
-  SHADING: true,
-  RAINBOW_MODE: false,
-  COLOR: '#54C1ED',
-} as const
-
 function HomePage({ theme, onToggleTheme }: { theme: 'dark' | 'light'; onToggleTheme: () => void }) {
   useReveal('home')
   return (
     <div className="relative min-h-screen">
-      <SplashCursor {...splashProps} />
       <a
         href="#main"
         className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:px-4 focus:py-2 focus:rounded-pill focus:bg-primary focus:text-primary-foreground focus:font-medium focus:shadow-lg"
@@ -993,36 +976,52 @@ function App() {
 
   const toggleTheme = () => setTheme((t) => (t === 'dark' ? 'light' : 'dark'))
 
+  return <AnimatedRoutes theme={theme} toggleTheme={toggleTheme} />
+}
+
+function AnimatedRoutes({ theme, toggleTheme }: { theme: 'dark' | 'light'; toggleTheme: () => void }) {
+  const location = useLocation()
+  const reduced = useReducedMotion()
+
   return (
-    <Routes>
-      <Route path="/" element={<HomePage theme={theme} onToggleTheme={toggleTheme} />} />
-      <Route path="/styleguide" element={
-        <div className="relative min-h-screen">
-          <SplashCursor {...splashProps} />
-          <Nav theme={theme} onToggleTheme={toggleTheme} />
-          <Styleguide />
-        </div>
-      } />
-      <Route path="/capacidades" element={
-        <CapabilitiesPage
-          products={products}
-          Nav={Nav}
-          Footer={Footer}
-          theme={theme}
-          onToggleTheme={toggleTheme}
-        />
-      } />
-      <Route path="/capacidades/:slug" element={
-        <ProductPage
-          products={products}
-          Nav={Nav}
-          Footer={Footer}
-          theme={theme}
-          onToggleTheme={toggleTheme}
-        />
-      } />
-      <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
+    <AnimatePresence mode="wait" initial={false}>
+      <motion.div
+        key={location.pathname}
+        initial={reduced ? false : { opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={reduced ? undefined : { opacity: 0, y: -4 }}
+        transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+      >
+        <Routes location={location}>
+          <Route path="/" element={<HomePage theme={theme} onToggleTheme={toggleTheme} />} />
+          <Route path="/styleguide" element={
+            <div className="relative min-h-screen">
+              <Nav theme={theme} onToggleTheme={toggleTheme} />
+              <Styleguide />
+            </div>
+          } />
+          <Route path="/capacidades" element={
+            <CapabilitiesPage
+              products={products}
+              Nav={Nav}
+              Footer={Footer}
+              theme={theme}
+              onToggleTheme={toggleTheme}
+            />
+          } />
+          <Route path="/capacidades/:slug" element={
+            <ProductPage
+              products={products}
+              Nav={Nav}
+              Footer={Footer}
+              theme={theme}
+              onToggleTheme={toggleTheme}
+            />
+          } />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </motion.div>
+    </AnimatePresence>
   )
 }
 

@@ -99,7 +99,7 @@ export function ProductPage({ products, Nav, Footer, theme, onToggleTheme }: Pro
 
               <motion.div {...fade(0.48)} className="mt-12 flex flex-wrap gap-3">
                 <MagneticButton strength={0.3} maxOffset={10}>
-                  <Button asChild size="lg" className={`rounded-full h-12 px-6 bg-primary hover:bg-primary/90 text-primary-foreground font-medium ${glowClass}`}>
+                  <Button asChild size="lg" className="rounded-full h-12 px-6 bg-primary hover:bg-primary/90 text-primary-foreground font-medium">
                     <Link to="/#contato">Falar com o time <ArrowRight className="ml-2 w-4 h-4" /></Link>
                   </Button>
                 </MagneticButton>
