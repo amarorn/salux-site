@@ -213,7 +213,6 @@ export type QuemSomosPage = {
     body: string[]
     cta: CTA
     featured: { name: string; subtitle: string }
-    carouselNote?: string
   }
   ecosystem: {
     eyebrow: string

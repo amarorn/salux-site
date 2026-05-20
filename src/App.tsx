@@ -23,6 +23,10 @@ import { JourneyWheel } from '@/components/JourneyWheel'
 import { Testimonials } from '@/components/Testimonials'
 import { FAQ } from '@/components/FAQ'
 import { SchemaJsonLd } from '@/components/SchemaJsonLd'
+import { Aurora } from '@/components/Aurora'
+import { Beams } from '@/components/Beams'
+import { DecryptText } from '@/components/DecryptText'
+import SplashCursor from '@/components/SplashCursor'
 
 import { ProductPage } from './pages/ProductPage'
 import { CapabilitiesPage } from './pages/CapabilitiesPage'
@@ -181,6 +185,9 @@ function Hero() {
 
   return (
     <section ref={sectionRef} id="top" className="relative pt-36 sm:pt-44 pb-16 sm:pb-24 overflow-hidden">
+      {/* Aurora — background animado azul/cyan, mix-blend-mode screen */}
+      <Aurora intensity={0.55} />
+
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 text-center">
         <motion.div
           initial={reduced ? false : { opacity: 0, y: 8 }}
@@ -189,7 +196,7 @@ function Hero() {
           className="inline-block"
         >
           <span className="inline-flex items-center gap-2 rounded-full bg-primary/10 ring-1 ring-primary/20 px-3.5 py-1.5 font-mono text-2xs uppercase tracking-widest text-primary">
-            {hero.title}
+            <DecryptText text={hero.title} duration={1100} startDelay={300} speed={40} />
           </span>
         </motion.div>
 
@@ -286,20 +293,51 @@ function Problem() {
 
 function Journey() {
   const { journey } = homePage
+  const reduced = useReducedMotion()
+  const colRef = useRef<HTMLDivElement>(null)
+  const inView = useInView(colRef, { once: true, margin: '-80px' })
+
+  const container = {
+    hidden: {},
+    show: { transition: { staggerChildren: 0.08, delayChildren: 0 } },
+  }
+  const item = {
+    hidden: reduced ? {} : { opacity: 0, y: 18 },
+    show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: EASE } },
+  }
+
   return (
     <section id="jornada" className="relative py-24 sm:py-32">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="grid lg:grid-cols-12 gap-12 items-center">
-          <div className="lg:col-span-6 reveal">
-            <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl leading-[1.1] tracking-tight text-balance">
+          <motion.div
+            ref={colRef}
+            className="lg:col-span-6"
+            variants={container}
+            initial="hidden"
+            animate={inView ? 'show' : 'hidden'}
+          >
+            <motion.h2
+              variants={item}
+              className="font-display text-3xl sm:text-4xl lg:text-5xl leading-[1.1] tracking-tight text-balance"
+            >
               {journey.title.split(',')[0]},
               <br />
-              <span className="text-primary">{journey.title.split(',')[1]?.trim()}</span>
-            </h2>
-            <p className="mt-5 text-muted-foreground text-pretty max-w-xl">
+              <span className="text-primary">
+                <DecryptText
+                  text={journey.title.split(',')[1]?.trim() ?? ''}
+                  duration={1100}
+                  speed={28}
+                  startDelay={500}
+                />
+              </span>
+            </motion.h2>
+
+            <motion.p variants={item} className="mt-5 text-muted-foreground text-pretty max-w-xl">
               {journey.subtitle}
-            </p>
-            <div className="mt-10 space-y-3">
+            </motion.p>
+
+            <motion.div variants={item} className="mt-10 space-y-3">
               {journey.pillars.map((p, i) => (
                 <details key={p.title} open={i === 0} className="group rounded-2xl bg-card ring-1 ring-border p-5 [&_summary::-webkit-details-marker]:hidden">
                   <summary className="flex items-center justify-between cursor-pointer list-none">
@@ -309,11 +347,15 @@ function Journey() {
                   <p className="mt-3 text-sm text-muted-foreground leading-relaxed">{p.description}</p>
                 </details>
               ))}
-            </div>
-            <Link to={journey.cta.href} className="inline-flex items-center gap-2 mt-8 text-sm text-primary hover:text-primary/80 transition">
-              {journey.cta.label} <ArrowRight className="w-4 h-4" />
-            </Link>
-          </div>
+            </motion.div>
+
+            <motion.div variants={item}>
+              <Link to={journey.cta.href} className="inline-flex items-center gap-2 mt-8 text-sm text-primary hover:text-primary/80 transition">
+                {journey.cta.label} <ArrowRight className="w-4 h-4" />
+              </Link>
+            </motion.div>
+          </motion.div>
+
           <div className="lg:col-span-6 pb-16">
             <JourneyWheel nodes={journeyStages.map((s) => ({ k: s.label, t: s.description, i: s.icon }))} />
           </div>
@@ -348,6 +390,9 @@ function Capabilities() {
         <div className="mt-12 reveal">
           <div className="relative rounded-3xl bg-foreground text-background overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-br from-primary/30 via-transparent to-accent/20 mix-blend-screen" />
+            <div className="noise" aria-hidden />
+            {/* Beams — feixes de luz irradiando do topo, reforçam o conceito de "ativação" */}
+            <Beams origin="top" intensity={0.55} />
             <div className="relative p-8 sm:p-12 grid lg:grid-cols-12 gap-8 items-center">
               <div className="lg:col-span-7">
                 <span className="inline-flex items-center gap-2 rounded-full bg-primary/20 ring-1 ring-primary/40 px-3 py-1 font-mono text-2xs uppercase tracking-widest text-background">
@@ -402,6 +447,9 @@ function Credentials() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="relative rounded-[2rem] bg-foreground text-background overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-primary/40 via-transparent to-accent/20 mix-blend-screen" />
+          <div className="noise" aria-hidden />
+          {/* Aurora — reforça a identidade visual azul na seção de credenciais */}
+          <Aurora intensity={0.3} />
           <div className="relative grid lg:grid-cols-12 gap-10 p-10 sm:p-14 items-center">
             <div className="lg:col-span-7 reveal">
               <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl leading-[1.08] tracking-tight text-balance">
@@ -596,6 +644,15 @@ function HomePage({ theme, onToggleTheme }: { theme: 'dark' | 'light'; onToggleT
   useReveal('home')
   return (
     <div className="relative min-h-screen bg-background text-foreground">
+      <SplashCursor
+        TRANSPARENT={true}
+        DENSITY_DISSIPATION={4}
+        VELOCITY_DISSIPATION={0.96}
+        SPLAT_RADIUS={0.2}
+        RAINBOW_MODE={false}
+        SIM_RESOLUTION={128}
+        COLOR="#3d89d9"
+      />
       <a
         href="#main"
         className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:px-4 focus:py-2 focus:rounded-pill focus:bg-primary focus:text-primary-foreground focus:font-medium focus:shadow-lg"

@@ -8,7 +8,6 @@ export const mainNav: NavLink[] = [
   { label: 'Quem somos', href: '/quem-somos' },
   { label: 'Soluções', href: '/capacidades' },
   { label: 'Cases', href: '/cases' },
-  { label: 'Conteúdos', href: '/conteudos' },
   { label: 'Contato', href: '/#contato' },
 ]
 
@@ -34,7 +33,6 @@ export const footerNav = {
     { label: 'Quem Somos', href: '/quem-somos' },
     { label: 'Soluções', href: '/capacidades' },
     { label: 'Cases', href: '/cases' },
-    { label: 'Conteúdo/blog', href: '/conteudos' },
   ] as NavLink[],
   contato: [
     { label: 'comercial@salux.com.br', href: 'mailto:comercial@salux.com.br' },

@@ -91,11 +91,6 @@ export function QuemSomosPage({ Nav, Footer, theme, onToggleTheme }: Props) {
                   <div className="text-sm text-background/80">{quemSomosPage.bringel.featured.subtitle}</div>
                 </div>
               </div>
-              {quemSomosPage.bringel.carouselNote && (
-                <p className="mt-3 text-xs text-muted-foreground italic">
-                  OBS: {quemSomosPage.bringel.carouselNote}
-                </p>
-              )}
             </motion.div>
 
             <motion.div

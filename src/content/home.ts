@@ -64,7 +64,7 @@ export const homePage: HomePage = {
       'O Ecossistema Salux organiza capacidades especializadas em gestão hospitalar, atenção básica, telessaúde, diagnóstico por imagem, governança documental, gestão da força de trabalho, BPO do ciclo de receita e inteligência artificial aplicada à saúde. Mais do que conectar tecnologias, estrutura uma base coordenada para ampliar eficiência, segurança, previsibilidade e inteligência na gestão de instituições de saúde.',
     cta: { label: 'Explore todas as capacidades', href: '/capacidades', variant: 'outline' },
     agentic: {
-      eyebrow: 'Bloco transversal · destaque visual diferenciado',
+      eyebrow: 'Camada Agêntica · Ecossistema Salux',
       title: 'Camada agêntica de inteligência operacional',
       body:
         'Os agentes de IA do Ecossistema Salux não são chatbots nem automações pontuais. São uma camada operacional distribuída que atua em níveis progressivos sobre a operação em saúde: informam o que é relevante no momento certo, analisam riscos antes que se tornem problemas, recomendam ações com base em contexto real, executam fluxos sob governança e coordenam processos que antes dependiam de esforço manual e costuras operacionais. Nascida no Initia, essa camada agêntica está em expansão para todo o ecossistema — e representa a virada de lógica que a Salux traz para a saúde: a operação deixa de ser apenas registrada e navegada para ser ativada por inteligência.',

@@ -45,8 +45,6 @@ export const quemSomosPage: QuemSomosPage = {
       name: 'Klelton Bringel',
       subtitle: '+ de 30 anos no setor de saúde',
     },
-    carouselNote:
-      'Manter carrossel alternando entre foto do CEO e foto da equipe no escritório.',
   },
 
   ecosystem: {

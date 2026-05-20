@@ -1,5 +1,6 @@
 import { ArrowUpRight, type LucideIcon } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import { useSpotlight } from '@/components/useSpotlight'
 
 export type CapabilityCardProps = {
   code: string
@@ -31,11 +32,13 @@ export function CapabilityCard({
   ctaLabel = 'Conhecer capacidade',
 }: CapabilityCardProps) {
   const accentClass = accent === 'primary' ? 'text-primary' : 'text-accent'
+  const spotRef = useSpotlight<HTMLAnchorElement>()
 
   return (
     <Link
+      ref={spotRef}
       to={href ?? '#contato'}
-      className="group relative flex flex-col rounded-2xl overflow-hidden bg-card ring-1 ring-border transition-[transform,box-shadow] duration-300 ease-out will-change-transform hover:scale-[1.01] hover:-translate-y-0.5 hover:shadow-[0_18px_50px_-24px_rgba(15,30,60,0.25)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
+      className="spotlight group relative flex flex-col rounded-2xl overflow-hidden bg-card ring-1 ring-border transition-[transform,box-shadow] duration-300 ease-out will-change-transform hover:scale-[1.01] hover:-translate-y-0.5 hover:shadow-[0_18px_50px_-24px_rgba(15,30,60,0.25)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
     >
       {/* Foto topo */}
       <div className="relative aspect-[4/3] overflow-hidden bg-secondary">
