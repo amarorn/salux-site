@@ -61,6 +61,20 @@
 }
 
 @layer utilities {
+  .imaga-word {
+    letter-spacing: -0.045em;
+    text-wrap: nowrap;
+    text-rendering: geometricPrecision;
+    font-kerning: normal;
+  }
+
+  @media (max-width: 768px) {
+    .imaga-word {
+      font-size: clamp(3.6rem, 20vw, 9.2rem) !important;
+      letter-spacing: -0.03em;
+    }
+  }
+
   .font-serif { font-family: 'Sora', sans-serif; font-weight: 600; letter-spacing: -0.035em; }
   .font-display { font-family: 'Sora', sans-serif; font-weight: 700; letter-spacing: -0.04em; }
   /* Itálicos do Sora vazam à direita — pequeno padding evita corte */
