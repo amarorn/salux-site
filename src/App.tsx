@@ -31,6 +31,7 @@ import { MagneticButton } from '@/components/MagneticButton'
 import { VideoBackground } from '@/components/VideoBackground'
 import { ProductPage, type ProductDef } from './pages/ProductPage'
 import { CapabilitiesPage } from './pages/CapabilitiesPage'
+import { ScrollExperience } from './pages/ScrollExperience'
 
 import orbsMp4 from './assets/videos/orbs.mp4'
 import orbsWebm from './assets/videos/orbs.webm'
@@ -982,6 +983,16 @@ function App() {
 function AnimatedRoutes({ theme, toggleTheme }: { theme: 'dark' | 'light'; toggleTheme: () => void }) {
   const location = useLocation()
   const reduced = useReducedMotion()
+
+  // Render scroll-scene outside AnimatePresence — a transformed parent breaks
+  // position:fixed children by creating a new stacking/containing block.
+  if (location.pathname === '/scroll-scene') {
+    return (
+      <Routes location={location}>
+        <Route path="/scroll-scene" element={<ScrollExperience />} />
+      </Routes>
+    )
+  }
 
   return (
     <AnimatePresence mode="wait" initial={false}>
